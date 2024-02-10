@@ -84,9 +84,9 @@ export default function App() {
   }
 
   const generateRandomEnemyCards = ()=>{
-    let amount = enemyCardsUsed >= 5 ? 1 : Math.floor(Math.random() * 5) + 1
+    if(!fight) return [] 
     let randomCards = [];
-    for (let i = 0; i < amount; i++) {
+    for (let i = 0; i < (enemyCardsUsed >= 5 ? 1 : Math.floor(Math.random() * 5) + 1); i++) {
         let index = Math.floor(Math.random() * 15);
         randomCards.push(enemyCards[index]);
     }
