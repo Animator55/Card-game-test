@@ -33,10 +33,14 @@ main {
 
 
 .card-in-table {
-  scale: 0.8;
+  height: 5rem;
+  padding: 0.7rem .8rem;
+}
+.card-in-table:hover{
+  scale: 1;
 }
 .card-in-table.enemy {
-  background-color: gray;
+  background-color: darkgray;
 }
 
 /***/
@@ -44,6 +48,27 @@ main {
 .enemy-table, .player-table {
   display: flex;
   gap: 0.5rem;
+}
+
+.hand.enemy {
+  display: flex;
+  gap: 0.3rem;
+  position: absolute;
+  justify-content: center;
+  width: 100%;
+  top: 2rem;
+  bottom: auto;
+}
+.card:not(.card-in-table).enemy {
+  background-color: darkgray;
+  color: white;
+  border-radius: 6px;
+  height: 3.5rem;
+  width: 1rem;
+  position: relative;
+}
+.card.enemy:hover {
+  scale: 1;
 }
 
 /***/
@@ -58,4 +83,13 @@ main {
   position: fixed;
   top: 1rem;
   left: 5rem;
+}
+
+.table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
