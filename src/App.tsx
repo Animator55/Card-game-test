@@ -37,6 +37,14 @@ const cardsD: cardsList = {
   },
 }
 
+const player = {
+  _id: "a"
+}
+
+const enemy = {
+  _id: "b"
+}
+
 const enemyCards = [
   ["0001.6786", "0002.6876", "0000.68767", "0002.6549", "0003.6546"],
   ["0001.3646", "0001.78678", "0003.6876", "0001.9879", "0000.2543"],
@@ -53,7 +61,7 @@ export default function App() {
     "0002.658746", "0000.67856", "0001.678546", "0003.7897", "0002.425",
   ])
 
-  const [fight, activateFight] = React.useState(false)
+  const [fight, activateFight] = React.useState([false, false])
 
   const clickCard = (card: string)=>{
     if(!card) return
@@ -61,11 +69,13 @@ export default function App() {
   }
 
   const generateRandomEnemyCards = ()=>{
-    if(!fight) return [] 
+    if(!fight[1]) return [] 
     let randomCards:string[] = [];
+    if(enemyCards[round].some((el)=>{return el === ","})) {console.log(","); return []}
     let cardsAv = enemyCards[round].filter((el)=>{return el !== ""})
     if(cardsAv.length === 0) return []
     let randomAmount = Math.floor(Math.random() * cardsAv.length) + 1
+
     for (let i = 0; i < randomAmount; i++) {
       let index = Math.floor(Math.random() * randomAmount);
       if(randomCards.includes(cardsAv[index])) {
@@ -73,7 +83,7 @@ export default function App() {
         continue
       }
       randomCards.push(cardsAv[index]);
-      enemyCards[round].splice(enemyCards[round].indexOf(cardsAv[index]), 1, "")
+      enemyCards[round].splice(enemyCards[round].indexOf(cardsAv[index]), 1, ",")
     }
     return randomCards;
   }
@@ -84,7 +94,7 @@ export default function App() {
     let jsx = []
 
     for(let i=0; i<5; i++) {
-      if(enemyCards[round][i] === "") continue
+      if(enemyCards[round][i] === "" || enemyCards[round][i] === ",") continue
       
       jsx.push(
         <div 
@@ -110,6 +120,7 @@ export default function App() {
           className="card"
           onClick={()=>{clickCard(cards[i])}}
           key={Math.random()}
+          style={{pointerEvents: subRound.player === player._id ? "all" : "none"}}
         >
           {cardsD[card].name + " " + card}
         </div>
@@ -122,7 +133,7 @@ export default function App() {
   const RenderTable = ()=>{
     return <section className="table">
       <div className="enemy-table">
-        {fight && enemyCardsGenerated.map(card=>{
+        {fight[1] && enemyCardsGenerated.map(card=>{
           let card_id = card.split(".")[0]
           return <div 
             className="card card-in-table enemy"
@@ -147,24 +158,46 @@ export default function App() {
   }
 
   React.useEffect(()=>{
-    if(!fight) return
+    if(fight[0] && !fight[1]) setTimeout(()=>{
+      console.log("confirm battle ia")
+      activateFight([true, true])
+      setSubRound({index: subRound.index, player: enemy._id})
+    }, 1000)
 
-    setTimeout(()=>{
+    else if(fight[0] && fight[1]) setTimeout(()=>{
+      console.log("final fight")
       let newCards = cards.map((el)=>{
         return selected.includes(el) ? "": el
       })
-      activateFight(false)
+      for (let i = 0; i < 4; i++) {
+        if(enemyCards[round][i] === ",") enemyCards[round].splice(i, 1, "")
+      }
+      activateFight([false, false])
       setCards(newCards)
       setSelected([])
-      setSubRound({index: subRound.index + 1, player: ""})
+      setSubRound({index: subRound.index + 1, player: subRound.player })
+    }, 1000)
+    
+    else if(!fight[0] && !fight[1] && subRound.player !== player._id && subRound.player !== "") setTimeout(()=>{
+      console.log("boot battle ia")
+      activateFight([false, true])
+      setSubRound({index: subRound.index, player: player._id})
     }, 1000)
   }, [fight])
+
+  React.useEffect(()=>{
+    if(subRound.player === "") setSubRound({...subRound, player: player._id})
+    // if(subRound.player !== player._id) setTimeout(()=>{
+    // }, 1000)
+  }, [subRound])
+
 
   return <main>
     <RenderEnemyCards/>
     <RenderTable/>
     <RenderCards />
     <button className="fixed-b" onClick={()=>{setRound(round + 1)}}>Round</button>
-    <button className="fixed-b-2" onClick={()=>{activateFight(true)}}>Fight</button>
+    <button className="fixed-b-2" onClick={()=>{activateFight([true, fight[1]])}}>Fight</button>
+    <button className="fixed-b-2" style={{left: "10rem"}}>Turn {subRound.player}</button>
   </main>
 }
