@@ -23,7 +23,7 @@ main {
   color: white;
   border-radius: 6px;
   height: 7rem;
-  padding: 1rem 2rem;
+  width: 5rem;
   transform-origin: bottom;
   position: relative;
 }
@@ -40,19 +40,44 @@ main {
 .card.vanish {
   margin: auto 0;
   pointer-events: none;
-  animation: vanish 1.5s 0.1s forwards;
+  animation: vanish 1s 0.1s forwards;
   transform-origin: center;
 }
 
 @keyframes vanish {
-  50% {
+  30% {
     border-radius: 100%;
     background-color: blue;
     box-shadow: 0 0 5px blue;
     scale: 0.2;
+    width: 5rem;
   }
   100% {
+    width: 0rem;
+    top: -10rem;
     scale: 0;
+    rotate: 500deg;
+  }
+}
+.card.enemy.vanish {
+  margin: auto 0;
+  animation: vanish-enemy 1s 0.1s forwards;
+  transform-origin: center;
+}
+
+@keyframes vanish-enemy {
+  30% {
+    border-radius: 100%;
+    background-color: blue;
+    box-shadow: 0 0 5px blue;
+    scale: 0.2;
+    width: 4.5rem;
+  }
+  100% {
+    width: 0rem;
+    top: 8rem;
+    scale: 0;
+    rotate: 500deg;
   }
 }
 
@@ -68,11 +93,78 @@ main {
   background-color: darkgray;
 }
 
+.spawn-vanish {
+  animation: spawn-vanish 1s .5s forwards;
+  transform-origin: center;
+  scale: 0;
+}
+
+@keyframes spawn-vanish {
+  80% {
+    scale: 1.1;
+    border-radius: 6px;
+    background-color: black;
+    color: white;
+    box-shadow: 0 0 2px blue;
+  }
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0px blue;
+  }
+}
+.destroy-vanish {
+  animation: destroy-vanish 2s 1.5s forwards;
+  transform-origin: center;
+  scale: 1;
+}
+
+@keyframes destroy-vanish {
+  30% {
+    border-radius: 100%;
+    background-color: blue;
+    box-shadow: 0 0 5px blue;
+    scale: 0.2;
+  }
+  100% {
+    scale: 0;
+  }
+}
+
+.spawn-destroy-vanish {
+  animation: spawn-destroy-vanish 2s .5s forwards;
+  transform-origin: center;
+  scale: 0;
+}
+
+@keyframes spawn-destroy-vanish {
+  40% {
+    scale: 1.1;
+    border-radius: 6px;
+    background-color: black;
+    color: white;
+    box-shadow: 0 0 2px blue;
+  }
+  50% {
+    scale: 1;
+    box-shadow: 0 0 0px blue;
+  }
+  80% {
+    border-radius: 100%;
+    background-color: blue;
+    box-shadow: 0 0 5px blue;
+    scale: 0.2;
+  }
+  100% {
+    scale: 0;
+  }
+}
+
 /***/
 
 .enemy-table, .player-table {
   display: flex;
   gap: 0.5rem;
+  min-height: 5rem;
 }
 
 .hand.enemy {
@@ -88,8 +180,8 @@ main {
   background-color: darkgray;
   color: white;
   border-radius: 6px;
-  height: 3.5rem;
-  width: 1rem;
+  height: 6rem;
+  width: 4rem;
   position: relative;
 }
 .card.enemy:hover {
@@ -119,9 +211,9 @@ main {
   gap: 0.5rem;
 }
 
-.table::after {
+.table::before {
   content: "";
-  opacity: 0.8;
+  opacity: 0.3;
   background-color: #ff854d;
   border-radius: 50%;
   width: 100%;
@@ -129,15 +221,35 @@ main {
   box-shadow: 0 0px 1rem #ff854d;
   position: absolute;
 }
+.table::after {
+  content: "";
+  opacity: 0.3;
+  background-color: #ff854d;
+  border-radius: 50%;
+  width: 100%;
+  height: 7rem;
+  box-shadow: 0 0px 1rem #ff854d;
+  position: absolute;
+  animation: fadeIn 1s forwards;
+}
 
-main[data-turn="0"] .table::after {
+@keyframes fadeIn {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+main[data-turn="0"] .table::after, main[data-turn="1"] .table::before {
   bottom: -2.5rem;
 }
-main[data-turn="1"] .hand.player {
+/* main[data-turn="1"] .hand.player {
   gap: 0.2rem;
   bottom: -0.5rem;
-}
-main[data-turn="1"] .table::after {
+} */
+main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   top: 2.5rem;
   scale: 0.6;
 }
