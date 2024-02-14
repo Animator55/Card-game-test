@@ -23,22 +23,31 @@ const checkCards = (deck: string[])=>{
   })
 }
 
+const pickFromDeck = (array: Array<string[]>, current: string[])=>{
+  let concatedDeck = (array.flat()).filter(el=>{return el !== "" && !current.includes(el)})
+  
+  let randomCard = Math.floor(Math.random() * concatedDeck.length)
+  return concatedDeck[randomCard]
+}
+
 const generateRandomEnemyCards = (current: string[], array: string[])=>{
   if(current.length !== 0) return current 
   let cardsAv = array.filter((el)=>{return el !== ""})
-  if(cardsAv.length === 0) return []
-  let randomAmount = Math.floor(Math.random() * cardsAv.length) + 1
+  if(cardsAv.length === 0) {
+    let newCard = pickFromDeck(enemyCards, array)
+    return newCard !== undefined ? [newCard] : []
+  }
+  let randomAmount = Math.floor(Math.random() * 3) +1
 
   let result:string[] = []
   for (let i = 0; i < randomAmount; i++) {
-    let index = Math.floor(Math.random() * randomAmount);
+    let index = Math.floor(Math.random() * cardsAv.length);
     if(result.includes(cardsAv[index])) {
       i--
       continue
     }
     result = [...result, cardsAv[index]]
   }
-  console.log(result)
   return result
 }
 
@@ -54,6 +63,35 @@ export default function App() {
 
   const [selectedEnemy, setSelEnemy] = React.useState<string[]>([])
   const [fight, activateFight] = React.useState([false, false])
+
+
+  const enemyPicksCard = (newCard: string)=>{
+    enemyCards[round].push(newCard)
+    console.log(newCard, enemyCards[round])
+
+    activateFight([false, false])
+    setSelEnemy([])
+    setSubRound({index: subRound.index + 1, player: player._id })
+  }
+
+  const pickCard = (direct: boolean)=>{
+    let cardsAv = cards[round].filter((el)=>{return el !== ""})
+    if(cardsAv.length === 5) return 
+
+    let newCard= pickFromDeck(cards, cards[round])
+    if(newCard === undefined) return
+    let deleteAmount = 1
+
+    let newCards = cards[round].filter((card)=>{
+      if(card === "") deleteAmount = 0
+      else if(deleteAmount === 0 || card !== "") return card
+    })
+
+    setCards(Object.values({...cards, [round]: [...newCards, newCard]}) as Array<string[]>)
+    activateFight(direct ? [true, true] : [false, false])
+    setSelected(direct ? [newCard] : [])
+    setSubRound({index: subRound.index + 1, player: direct ? player._id : enemy._id })
+  }
 
   const fadeOutTable = ()=>{
     let cardsInTable = document.querySelectorAll(".card-in-table")
@@ -71,7 +109,7 @@ export default function App() {
   const RenderEnemyCards = ()=>{
     let jsx = []
 
-    for(let i=0; i<5; i++) {
+    for(let i=0; i<enemyCards[round].length; i++) {
       if(enemyCards[round][i] === "" 
       || (selectedEnemy.includes(enemyCards[round][i]) && fight[0] && subRound.player === player._id)) continue
        
@@ -94,6 +132,7 @@ export default function App() {
     return <section className="table">
       <div className="enemy-table">
         {fight[1] && selectedEnemy.length !== 0 && selectedEnemy.map(card=>{
+          if(!card || card === "") return
           let card_id = card.split(".")[0]
           return <div 
             className="card card-in-table enemy spawn-vanish"
@@ -105,6 +144,7 @@ export default function App() {
       </div>
       <div className="player-table">
         {fight[0] && selected.length !== 0 && selected.map(card=>{
+          if(!card || card === "") return
           let card_id = card.split(".")[0]
           return <div 
             className="card card-in-table spawn-vanish"
@@ -148,7 +188,7 @@ export default function App() {
         let newCards = cards[round].map((el)=>{
           return selected.includes(el) ? "": el
         })
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < enemyCards[round].length; i++) {
           if(selectedEnemy.includes(enemyCards[round][i])) enemyCards[round].splice(i, 1, "")
         }
         activateFight([false, false])
@@ -162,6 +202,9 @@ export default function App() {
     // attack bot
     else if(!fight[0] && !fight[1] && subRound.player !== player._id && subRound.player !== "") setTimeout(()=>{
       console.log("boot battle ia")
+      let newCard = pickFromDeck(enemyCards, enemyCards[round])
+      let pickCard = Math.random()>0.6 && enemyCards[round].filter((el)=>{return el!==""}).length < 5 && newCard !== undefined
+      if(pickCard) return enemyPicksCard(newCard)
       activateFight([false, true])
       setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round]))
       setSubRound({index: subRound.index, player: player._id})
@@ -179,6 +222,7 @@ export default function App() {
       fight={fight} 
       currentCards={cards[round]}
       selectedReal={selected}
+      pickCard={pickCard}
     />
     <button className="fixed-b" onClick={()=>{setRound(round + 1)}}>Round</button>
     <button className="fixed-b-2" style={{left: "8rem"}}>Turn {subRound.player}</button>

@@ -201,6 +201,14 @@ main {
   top: 1rem;
   left: 5rem;
 }
+.deck {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  background-color: rgb(19, 7, 90);
+  color: white;
+  padding: 1rem;
+}
 
 .table {
   width: 100%;
