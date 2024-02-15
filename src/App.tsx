@@ -2,6 +2,8 @@ import React from "react"
 import './assets/App.css'
 import Hand from "./Hand"
 import { cardsD } from "./assets/cardsList"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
 
 const player = {
   _id: "a"
@@ -120,7 +122,7 @@ export default function App() {
           className={className}
           key={Math.random()}
         >
-          {enemyCards[round][i]}
+          {/* {enemyCards[round][i]} */}
         </div>
       )
     }
@@ -138,7 +140,22 @@ export default function App() {
             className="card card-in-table enemy spawn-vanish"
             key={Math.random()}
           >
-            {cardsD[card_id].name + " " + card_id}
+            <h4>{cardsD[card_id].name}</h4>
+            <div className='card-image' style={{background: cardsD[card_id].image}}></div>
+            <div className='d-flex'>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].strength}</h5>
+                <FontAwesomeIcon icon={faHandFist}/>
+              </div>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].defense}</h5>
+                <FontAwesomeIcon icon={faShield}/>
+              </div>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].speed}</h5>
+                <FontAwesomeIcon icon={faShoePrints}/>
+              </div>
+            </div>
           </div>
         })}
       </div>
@@ -150,7 +167,22 @@ export default function App() {
             className="card card-in-table spawn-vanish"
             key={Math.random()}
           >
-            {cardsD[card_id].name + " " + card_id}
+            <h4>{cardsD[card_id].name}</h4>
+            <div className='card-image' style={{background: cardsD[card_id].image}}></div>
+            <div className='d-flex'>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].strength}</h5>
+                <FontAwesomeIcon icon={faHandFist}/>
+              </div>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].defense}</h5>
+                <FontAwesomeIcon icon={faShield}/>
+              </div>
+              <div className='d-flex'>
+                <h5>{cardsD[card_id].speed}</h5>
+                <FontAwesomeIcon icon={faShoePrints}/>
+              </div>
+            </div>
           </div>
         })}
       </div>

@@ -1,5 +1,8 @@
 import React from 'react'
 import { cardsD } from './assets/cardsList'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShield, faShoePrints } from '@fortawesome/free-solid-svg-icons'
+import { faHandFist } from '@fortawesome/free-solid-svg-icons/faHandFist'
 
 type Props = {
     player: {_id: string}
@@ -44,7 +47,22 @@ export default function Hand({confirm, player, enemy, currentCards, subRound, fi
           key={Math.random()}
           style={{pointerEvents: subRound.player === player._id ? "all" : "none"}}
         >
-          {cardsD[card].name + " " + card}
+          <h4>{cardsD[card].name}</h4>
+          <div className='card-image' style={{background: cardsD[card].image}}></div>
+          <div className='d-flex'>
+            <div className='d-flex'>
+              <h5>{cardsD[card].strength}</h5>
+              <FontAwesomeIcon icon={faHandFist}/>
+            </div>
+            <div className='d-flex'>
+              <h5>{cardsD[card].defense}</h5>
+              <FontAwesomeIcon icon={faShield}/>
+            </div>
+            <div className='d-flex'>
+              <h5>{cardsD[card].speed}</h5>
+              <FontAwesomeIcon icon={faShoePrints}/>
+            </div>
+          </div>
         </div>
       )
     }

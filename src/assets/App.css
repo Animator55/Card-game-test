@@ -9,6 +9,10 @@ main {
   overflow: hidden;
 }
 
+.d-flex {
+  display: flex;
+}
+
 .hand {
   display: flex;
   gap: 0.7rem;
@@ -26,7 +30,29 @@ main {
   width: 5rem;
   transform-origin: bottom;
   position: relative;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
 }
+.card * {
+  margin: 0;
+}
+.card-image {
+  height: 100%;
+}
+.card > .d-flex {
+  justify-content: space-between;
+  padding: 0.2rem 0.3rem;
+}
+.card > .d-flex > .d-flex {
+  align-items: center;
+  gap: 0.2rem;
+  justify-content: space-around;
+}
+.card > .d-flex > .d-flex > svg {
+  font-size: x-small;
+}
+
 .card.selected {
   top: -1.5rem;
   box-shadow: 0 0 10px white;
