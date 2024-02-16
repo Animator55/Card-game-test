@@ -1,14 +1,16 @@
 
 type cardsList = {
-    [key: string]: {
-        _id: string
-        name: string
-        image: string
-        type: string
-        strength: number
-        speed: number
-        defense: number
-    }
+    [key: string]: cardType
+}
+
+export type cardType = {
+    _id: string
+    name: string
+    image: string
+    type: string
+    strength: number
+    speed: number
+    defense: number
 }
 
 export const cardsD: cardsList = {
@@ -31,7 +33,7 @@ export const cardsD: cardsList = {
         defense: 1
     },
     "0002": {
-        _id: "0001",
+        _id: "0002",
         name: "Fire Ball",
         image: "red",
         type: "Attack",

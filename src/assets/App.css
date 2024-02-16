@@ -185,6 +185,11 @@ main {
   }
 }
 
+.wait-vanish {
+  animation: none!important;
+  scale: 1;
+}
+
 /***/
 
 .enemy-table, .player-table {
@@ -286,4 +291,8 @@ main[data-turn="0"] .table::after, main[data-turn="1"] .table::before {
 main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   top: 2.5rem;
   scale: 0.6;
+}
+
+.use {
+  opacity: 0.7;
 }
