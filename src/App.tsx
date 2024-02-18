@@ -6,6 +6,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
 import { calculateFight, eventType, resultType } from "./logic/calculateFight"
 
+type attackResult = {
+  result: string
+  damageTo?: {_id: string, dealed: number}
+}
+
 const player = {
   _id: "a"
 }
@@ -41,6 +46,7 @@ const generateRandomEnemyCards = (current: string[], array: string[])=>{
     return newCard !== undefined ? [newCard] : []
   }
   let randomAmount = Math.floor(Math.random() * 3) +1
+  if(randomAmount> cardsAv.length) randomAmount = cardsAv.length
 
   let result:string[] = []
   for (let i = 0; i < randomAmount; i++) {
@@ -162,10 +168,10 @@ export default function App() {
       let card = document.getElementById(`${turn.card._id+ "."+turn.tale}`)
 
       const checkAttack = ()=>{
-        let result = ""
+        let result: attackResult = {result: ""}
         if(!turn.action.attackTo) return result 
 
-        if(turn.action.attackTo.length === 0) return ("attack to " + turn.owner === player._id ? enemy._id : player._id)
+        if(turn.action.attackTo.length === 0) return {result: ("attack to " + turn.owner === player._id ? enemy._id : player._id)}
 
         let target: eventType | undefined 
         action: for(let j=0; j<turn.action.attackTo.length; j++) {
@@ -173,7 +179,7 @@ export default function App() {
           target = turn.action.attackTo[j]
           break
         }
-        if(!target)  return ("attack to " + turn.owner === player._id ? enemy._id : player._id)
+        if(!target)  return {result:("attack to " + turn.owner === player._id ? enemy._id : player._id)}
 
         let attack = turn.card.strength
         let defense = target.card.defense
@@ -182,10 +188,11 @@ export default function App() {
 
         calculated[index].card.defense = defense - attack < 0 ? 0 : defense - attack 
 
-        if(calculated[index].card.defense === 0) defeatedTargets.push(target)
-        result = calculated[index].card.name + " and dealed " + attack +". "+ (calculated[index].card.defense === 0 ? target.card.name + " died" : "")
+        if(defense - attack <= 0) defeatedTargets.push(target)
+        result.result = calculated[index].card.name + " and dealed " + attack +". "+ (defense - attack <= 0 ? target.card.name + " died" : "")
+        let damageTo = {_id: calculated[index].card._id + calculated[index].tale, dealed: attack}
 
-        return result
+        return {result:result, damageTo: damageTo}
       }
       let attackResult = checkAttack()
 
@@ -193,7 +200,7 @@ export default function App() {
         if(!card) return
         card.classList.add("use")
         console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
-        if(turn.action.attackTo) console.log("attackTo: "+ attackResult)
+        if(turn.action.attackTo) console.log("attackTo: "+ attackResult.result)
       }, time*1000)
     }
 
@@ -212,7 +219,7 @@ export default function App() {
       jsx.push(
         <div 
           className={className}
-          key={Math.random()}
+          key={i+"enemyCard"}
         >
           {/* {enemyCards[round][i]} */}
         </div>
@@ -231,7 +238,7 @@ export default function App() {
           return <div 
             className="card card-in-table enemy spawn-vanish"
             id={card}
-            key={Math.random()}
+            key={card_id+"intable"}
           >
             <h4>{cardsD[card_id].name}</h4>
             <div className='card-image' style={{background: cardsD[card_id].image}}></div>
@@ -259,7 +266,7 @@ export default function App() {
           return <div 
             className="card card-in-table spawn-vanish"
             id={card}
-            key={Math.random()}
+            key={card_id+"intable"}
           >
             <h4>{cardsD[card_id].name}</h4>
             <div className='card-image' style={{background: cardsD[card_id].image}}></div>
@@ -352,7 +359,5 @@ export default function App() {
       selectedReal={selected}
       pickCard={pickCard}
     />
-    <button className="fixed-b" onClick={()=>{setRound(round + 1)}}>Round</button>
-    <button className="fixed-b-2" style={{left: "8rem"}}>Turn {subRound.player}</button>
   </main>
 }

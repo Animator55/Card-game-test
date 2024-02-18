@@ -70,7 +70,7 @@ export default function Hand({confirm, player, enemy, currentCards, subRound, fi
     let cardsAv = currentCards.filter((el)=>{return el !== ""})
   
     return <div className="hand player">
-        <button className="fixed-b-2" onClick={()=>{confirm(selected);setSelected([])}}>Fight</button>
+        {selected.length !== 0 && <button className="fixed-b-2" onClick={()=>{confirm(selected);setSelected([])}}>Fight</button>}
         {(cardsAv.length < 5 && (subRound.player === player._id && !fight[1]) 
         || (fight[1] && !fight[0] && cardsAv.length === 0))
         && <button className="deck" onClick={()=>{
