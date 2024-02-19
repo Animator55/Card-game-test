@@ -15,21 +15,12 @@ main {
 
 .hand {
   display: flex;
-  gap: 0.5dvw;
   position: absolute;
   justify-content: center;
   width: 100%;
-  bottom: 2rem;
+  bottom: 0;
   z-index: 1;
-}
-.hand:not(.enemy) > :nth-child(4), .hand:not(.enemy) > :nth-child(5) {
-  position: absolute;
-  bottom: -5rem;
-  left: 20%;
-}
-.hand:not(.enemy) > :nth-child(5) {
-  right: 20%;
-  left: auto;
+  flex-wrap: wrap;
 }
 .card {
   background-color: black;
@@ -42,6 +33,9 @@ main {
   padding: 0.25rem;
   display: flex;
   flex-direction: column;
+  transition: top 300ms;
+  overflow: hidden;
+  margin: 0 0.25dvw;
 }
 .card * {
   margin: 0;
@@ -63,12 +57,12 @@ main {
 }
 
 .card.selected {
-  top: -1.5rem;
+  top: -0.25rem!important;
   box-shadow: 0 0 10px white;
 }
-.card:hover {
-  scale: 1.05;
-  transition: scale 300ms;
+.card:not(.enemy):hover {
+  top: 0;
+  transition: top 300ms;
   transform-origin: bottom;
 }
 
@@ -86,8 +80,10 @@ main {
     box-shadow: 0 0 5px blue;
     scale: 0.2;
     width: 5rem;
+    margin: 0;
   }
   100% {
+    margin: 0;
     width: 0rem;
     top: -10rem;
     scale: 0;
@@ -224,9 +220,6 @@ main {
   width: 4rem;
   position: relative;
 }
-.card.enemy:hover {
-  scale: 1;
-}
 
 /***/
 
@@ -238,7 +231,7 @@ main {
 
 .fixed-b-2, .deck {
   position: fixed;
-  top: 55vh;
+  top: 45vh;
   right: 0;
   background-color: rgb(7, 90, 49);
   color: white;
@@ -294,10 +287,9 @@ main {
 main[data-turn="0"] .table::after, main[data-turn="1"] .table::before {
   bottom: -2.5rem;
 }
-/* main[data-turn="1"] .hand.player {
-  gap: 0.2rem;
-  bottom: -0.5rem;
-} */
+main[data-turn="1"] .hand.player {
+  filter: brightness(0.4);
+}
 main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   top: 2.5rem;
   scale: 0.6;
@@ -305,4 +297,48 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 .use {
   opacity: 0.7;
+}
+.get-hit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: red;
+  animation: getHit 300ms;
+  opacity: 0;
+  pointer-events: none;
+}
+.get-hit-enemy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgb(21, 255, 0);
+  animation: getHit 300ms;
+  opacity: 0;
+  pointer-events: none;
+}
+.defeated {
+  filter: brightness(0.2);
+  animation: destroy 500ms forwards;
+}
+
+@keyframes destroy {
+  20%{
+    scale: 1.1;
+  }
+  100% {
+    scale: 0
+  }
+}
+
+@keyframes getHit {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.card::before {
+  content: attr(data-damage);
 }

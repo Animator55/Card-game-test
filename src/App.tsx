@@ -8,7 +8,8 @@ import { calculateFight, eventType, resultType } from "./logic/calculateFight"
 
 type attackResult = {
   result: string
-  damageTo?: {_id: string, dealed: number}
+  damageTo?: {_id: string, dealed: number, defense: number}
+  attackToLife?: {_id: string, number: number}
 }
 
 const player = {
@@ -148,6 +149,16 @@ export default function App() {
       return index
     }
 
+    const checkIfDefeated = (turn: resultType)=>{
+      if(defeatedTargets.length === 0) return false
+      for(let j=0; j<defeatedTargets.length; j++ ) {
+        let id = defeatedTargets[j].card._id
+        let tale = defeatedTargets[j].tale
+        if(turn.card._id === id && turn.tale === tale) return true
+      }
+      return false
+    }
+
     resultArray: for(let i=0; i<calculated.length; i++) {
       let turn = calculated[i]
 
@@ -167,11 +178,14 @@ export default function App() {
       }
       let card = document.getElementById(`${turn.card._id+ "."+turn.tale}`)
 
-      const checkAttack = ()=>{
+      const checkAttack = () : attackResult=>{
         let result: attackResult = {result: ""}
         if(!turn.action.attackTo) return result 
 
-        if(turn.action.attackTo.length === 0) return {result: ("attack to " + turn.owner === player._id ? enemy._id : player._id)}
+        if(turn.action.attackTo.length === 0) return {result: ("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
+          _id: turn.owner === player._id ? enemy._id : player._id,
+          number: turn.card.strength
+        }}
 
         let target: eventType | undefined 
         action: for(let j=0; j<turn.action.attackTo.length; j++) {
@@ -179,28 +193,62 @@ export default function App() {
           target = turn.action.attackTo[j]
           break
         }
-        if(!target)  return {result:("attack to " + turn.owner === player._id ? enemy._id : player._id)}
+        if(!target)  return {result:("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
+          _id: turn.owner === player._id ? enemy._id : player._id,
+          number: turn.card.strength
+        }}
 
         let attack = turn.card.strength
         let defense = target.card.defense
 
         let index = searchCard(target.card._id, target.tale)
 
-        calculated[index].card.defense = defense - attack < 0 ? 0 : defense - attack 
-
         if(defense - attack <= 0) defeatedTargets.push(target)
-        result.result = calculated[index].card.name + " and dealed " + attack +". "+ (defense - attack <= 0 ? target.card.name + " died" : "")
-        let damageTo = {_id: calculated[index].card._id + calculated[index].tale, dealed: attack}
+        let subresult = calculated[index].card.name + " and dealed " + attack +". "+ (defense - attack <= 0 ? target.card.name + " died" : "")
+        let damageTo = {_id: calculated[index].card._id +"." + calculated[index].tale, dealed: attack, defense: defense}
 
-        return {result:result, damageTo: damageTo}
+        return {result:subresult, damageTo: damageTo}
       }
       let attackResult = checkAttack()
 
       setTimeout(()=>{
         if(!card) return
+        let defeated = checkIfDefeated(turn)
+        if(defeated) {
+          card.classList.add("defeated")
+          console.log("died")
+          return
+        }
         card.classList.add("use")
-        console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
-        if(turn.action.attackTo) console.log("attackTo: "+ attackResult.result)
+        console.log("used")
+        // console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
+        if(turn.action.attackTo && attackResult.attackToLife) {
+          let playerDOM = document.querySelector("main")
+          if(!playerDOM) return
+          if(attackResult.attackToLife._id === player._id) {
+            playerDOM.classList.remove('get-hit')
+            playerDOM.classList.remove('get-hit-enemy')
+            playerDOM.classList.add('get-hit')
+          }
+          else {
+            playerDOM.classList.remove('get-hit')
+            playerDOM.classList.remove('get-hit-enemy')
+            playerDOM.classList.add('get-hit-enemy')
+          }
+        }
+        else if(turn.action.attackTo && attackResult.damageTo) {
+          let enemyTarget = document.getElementById(attackResult.damageTo._id)
+          console.log({enemyTarget}, attackResult.damageTo._id)
+          if(!enemyTarget) return
+          enemyTarget.dataset.damage = `${attackResult.damageTo.dealed}`
+          enemyTarget.classList.remove('get-hit')
+          enemyTarget.classList.add('get-hit')
+          if(defeated) {
+            enemyTarget.classList.remove('defeated')
+            enemyTarget.classList.add('defeated')
+          }
+          // console.log("attackTo: "+ attackResult.result)
+        }
       }, time*1000)
     }
 
@@ -226,7 +274,7 @@ export default function App() {
       )
     }
 
-    return <div className="hand enemy">{jsx}</div>
+    return <div className="hand enemy" data-length={`${jsx.length}`}>{jsx}</div>
   }
 
   const RenderTable = ()=>{
@@ -238,7 +286,8 @@ export default function App() {
           return <div 
             className="card card-in-table enemy spawn-vanish"
             id={card}
-            key={card_id+"intable"}
+            key={card_id+"intable-enemy"}
+            data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
             <div className='card-image' style={{background: cardsD[card_id].image}}></div>
@@ -267,6 +316,7 @@ export default function App() {
             className="card card-in-table spawn-vanish"
             id={card}
             key={card_id+"intable"}
+            data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
             <div className='card-image' style={{background: cardsD[card_id].image}}></div>
