@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  background-color: rgb(17, 0, 27);
 }
 
 main {
@@ -144,7 +145,7 @@ main {
   }
 }
 .destroy-vanish {
-  animation: destroy-vanish 2s 1.5s forwards;
+  animation: destroy-vanish 2s 1.5s forwards!important;
   transform-origin: center;
   scale: 1;
 }
@@ -161,37 +162,8 @@ main {
   }
 }
 
-.spawn-destroy-vanish {
-  animation: spawn-destroy-vanish 2s .5s forwards;
-  transform-origin: center;
-  scale: 0;
-}
-
-@keyframes spawn-destroy-vanish {
-  40% {
-    scale: 1.1;
-    border-radius: 6px;
-    background-color: black;
-    color: white;
-    box-shadow: 0 0 2px blue;
-  }
-  50% {
-    scale: 1;
-    box-shadow: 0 0 0px blue;
-  }
-  80% {
-    border-radius: 100%;
-    background-color: blue;
-    box-shadow: 0 0 5px blue;
-    scale: 0.2;
-  }
-  100% {
-    scale: 0;
-  }
-}
-
 .wait-vanish {
-  animation: none!important;
+  animation: none;
   scale: 1;
 }
 
@@ -296,9 +268,41 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 }
 
 .use {
-  opacity: 0.7;
+  animation: use 500ms forwards;
 }
-.get-hit::after {
+@keyframes use {
+  40%{
+    top: -2rem;
+  }
+  55% {
+    scale: 1.1;
+    border: 2px solid rgb(201, 255, 255);
+    box-shadow: inset 5px white;
+  }
+  100% {
+    scale: 1;
+    top: 0rem;
+  } 
+}
+@keyframes destroy {
+  20%{
+    scale: 1.1;
+  }
+  100% {
+    scale: 0
+  }
+}
+
+@keyframes getHit {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.get-hit::after, .defeated::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -317,28 +321,38 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   pointer-events: none;
 }
 .defeated {
-  filter: brightness(0.2);
-  animation: destroy 500ms forwards;
+  /* filter: brightness(0.2); */
 }
 
-@keyframes destroy {
-  20%{
-    scale: 1.1;
-  }
-  100% {
-    scale: 0
-  }
+.card.card-in-table:not([data-damage=""])::before {
+  content: attr(data-damage);
+  position: absolute;
+  z-index: 1;
+  color: red;
+  filter: drop-shadow(0px 0px 2px black);
+  font-size: 4rem;
+  inset: 0;
+  text-align: center;
+  top: 15%;
+  font-weight: 900;
+  opacity: 0;
+  animation: damage-number 1s;
 }
-
-@keyframes getHit {
-  0%, 100% {
+@keyframes damage-number {
+  0% {
     opacity: 0;
-  }
+    top: 50%;
+  } 
   50% {
+    top: 15%;
     opacity: 1;
   }
-}
-
-.card::before {
-  content: attr(data-damage);
+  70% {
+    top: 12%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0;
+  }
 }

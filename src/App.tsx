@@ -116,19 +116,11 @@ export default function App() {
 
       let card = cardsInTable[i] as HTMLDivElement
 
-      let result = isPlayerTurn ? isFromPlayer ? "spawn-destroy-vanish" : "wait-vanish": isFromPlayer ? "wait-vanish" : "spawn-destroy-vanish" 
+      if(!isPlayerTurn && isFromPlayer || isPlayerTurn && !isFromPlayer) card.classList.add("wait-vanish")
 
-      if(result === "wait-vanish") {
-        card.classList.add(result)
-        setTimeout(()=>{
-          card.classList.remove("wait-vanish")
-          card.classList.add("destroy-vanish")
-        }, time*1000)
-      }
-      else setTimeout(()=>{
-        card.classList.remove("spawn-destroy-vanish")
+      setTimeout(()=>{
         card.classList.add("destroy-vanish")
-      }, time*1000)
+      }, time*1500+1000)
       
     } 
   }
@@ -149,12 +141,12 @@ export default function App() {
       return index
     }
 
-    const checkIfDefeated = (turn: resultType)=>{
+    const checkIfDefeated = (_id: string, _tale: string)=>{
       if(defeatedTargets.length === 0) return false
       for(let j=0; j<defeatedTargets.length; j++ ) {
         let id = defeatedTargets[j].card._id
         let tale = defeatedTargets[j].tale
-        if(turn.card._id === id && turn.tale === tale) return true
+        if(_id === id && _tale === tale) return true
       }
       return false
     }
@@ -168,14 +160,15 @@ export default function App() {
         if(turn.card._id === id && turn.tale === tale) {continue resultArray; break }
       }
 
-      if(turn.owner !== lastPlayer) {
-        lastPlayer =  turn.owner
-        time = time+ 1
-      }
-      else if(turn.card.speed !== lastSpeed) {
-        lastSpeed =  turn.card.speed
-        time = time+ 2
-      }
+      // if(turn.owner !== lastPlayer) {
+      //   lastPlayer =  turn.owner
+      //   time = time+ 1
+      // }
+      // else if(turn.card.speed !== lastSpeed) {
+      //   lastSpeed =  turn.card.speed
+      //   time = time+ 2
+      // }
+      time = time + 1
       let card = document.getElementById(`${turn.card._id+ "."+turn.tale}`)
 
       const checkAttack = () : attackResult=>{
@@ -213,43 +206,50 @@ export default function App() {
 
       setTimeout(()=>{
         if(!card) return
-        let defeated = checkIfDefeated(turn)
-        if(defeated) {
-          card.classList.add("defeated")
-          console.log("died")
-          return
-        }
+        // if(checkIfDefeated(turn)) {
+        //   // card.classList.add("defeated")
+        //   console.log("died")
+        //   return
+        // }
+        card.offsetWidth
+        console.log(i)
         card.classList.add("use")
-        console.log("used")
         // console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
         if(turn.action.attackTo && attackResult.attackToLife) {
           let playerDOM = document.querySelector("main")
           if(!playerDOM) return
+          playerDOM.classList.remove('get-hit')
+          playerDOM.classList.remove('get-hit-enemy')
+          playerDOM.offsetWidth
           if(attackResult.attackToLife._id === player._id) {
-            playerDOM.classList.remove('get-hit')
-            playerDOM.classList.remove('get-hit-enemy')
             playerDOM.classList.add('get-hit')
           }
           else {
-            playerDOM.classList.remove('get-hit')
-            playerDOM.classList.remove('get-hit-enemy')
             playerDOM.classList.add('get-hit-enemy')
           }
         }
         else if(turn.action.attackTo && attackResult.damageTo) {
           let enemyTarget = document.getElementById(attackResult.damageTo._id)
-          console.log({enemyTarget}, attackResult.damageTo._id)
           if(!enemyTarget) return
           enemyTarget.dataset.damage = `${attackResult.damageTo.dealed}`
+          enemyTarget.classList.remove('defeated')
           enemyTarget.classList.remove('get-hit')
-          enemyTarget.classList.add('get-hit')
-          if(defeated) {
-            enemyTarget.classList.remove('defeated')
+
+          let splitedID = attackResult.damageTo._id.split(".")
+
+          if(checkIfDefeated(splitedID[0], splitedID[1])) {
+            // console.log("defeated card")
+            enemyTarget.offsetWidth
             enemyTarget.classList.add('defeated')
+          }
+          else {
+            // console.log("normal hit")
+            enemyTarget.offsetWidth
+            enemyTarget.classList.add('get-hit')
           }
           // console.log("attackTo: "+ attackResult.result)
         }
-      }, time*1000)
+      }, time*1500)
     }
 
     return time
@@ -286,7 +286,7 @@ export default function App() {
           return <div 
             className="card card-in-table enemy spawn-vanish"
             id={card}
-            key={card_id+"intable-enemy"}
+            key={card+"intable-enemy"}
             data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
@@ -315,7 +315,7 @@ export default function App() {
           return <div 
             className="card card-in-table spawn-vanish"
             id={card}
-            key={card_id+"intable"}
+            key={card+"intable"}
             data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
@@ -381,7 +381,7 @@ export default function App() {
         setSelected([])
         setSelEnemy([])
         setSubRound({index: subRound.index + 1, player: subRound.player })
-      }, time*1000 +1000)
+      }, time*1500 +2000)
     }
 
     // attack bot
