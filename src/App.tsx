@@ -127,8 +127,8 @@ export default function App() {
 
   const renderFight = (calculated: resultType[])=>{
     let time = 0
-    let lastSpeed = 0
-    let lastPlayer = calculated[0].owner
+    // let lastSpeed = 0
+    // let lastPlayer = calculated[0].owner
     let defeatedTargets: eventType[] = []
 
     const searchCard = (id: string, tale: string)=>{
@@ -194,6 +194,14 @@ export default function App() {
         let attack = turn.card.strength
         let defense = target.card.defense
 
+        let currentTarget = document.getElementById(`${target.card._id + "." + target.tale}`)
+        if(currentTarget) {
+          let defenseEl = currentTarget.querySelector('.defense-stat') as HTMLElement
+          if(defenseEl && defenseEl.dataset.defense !== "") {
+            defense = Number(defenseEl.dataset.defense)
+          }
+        }
+
         let index = searchCard(target.card._id, target.tale)
 
         if(defense - attack <= 0) defeatedTargets.push(target)
@@ -231,15 +239,20 @@ export default function App() {
         else if(turn.action.attackTo && attackResult.damageTo) {
           let enemyTarget = document.getElementById(attackResult.damageTo._id)
           if(!enemyTarget) return
+          enemyTarget.dataset.damage = ""
+          enemyTarget.offsetWidth
           enemyTarget.dataset.damage = `${attackResult.damageTo.dealed}`
+          let defenseEl = enemyTarget.querySelector('.defense-stat') as HTMLElement
+          if(defenseEl) defenseEl.dataset.defense = `${Number(defenseEl.dataset.defense) - attackResult.damageTo.dealed}`
           enemyTarget.classList.remove('defeated')
           enemyTarget.classList.remove('get-hit')
 
           let splitedID = attackResult.damageTo._id.split(".")
 
-          if(checkIfDefeated(splitedID[0], splitedID[1])) {
+          if(checkIfDefeated(splitedID[0], splitedID[1]) || Number(defenseEl.dataset.defense) <= 0) {
             // console.log("defeated card")
             enemyTarget.offsetWidth
+            enemyTarget.classList.add('get-hit')
             enemyTarget.classList.add('defeated')
           }
           else {
@@ -297,7 +310,7 @@ export default function App() {
                 <FontAwesomeIcon icon={faHandFist}/>
               </div>
               <div className='d-flex'>
-                <h5>{cardsD[card_id].defense}</h5>
+                <h5 className="defense-stat" data-defense={cardsD[card_id].defense}></h5>
                 <FontAwesomeIcon icon={faShield}/>
               </div>
               <div className='d-flex'>
@@ -326,7 +339,7 @@ export default function App() {
                 <FontAwesomeIcon icon={faHandFist}/>
               </div>
               <div className='d-flex'>
-                <h5>{cardsD[card_id].defense}</h5>
+                <h5 className="defense-stat" data-defense={cardsD[card_id].defense}></h5>
                 <FontAwesomeIcon icon={faShield}/>
               </div>
               <div className='d-flex'>

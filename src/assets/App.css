@@ -15,27 +15,29 @@ main {
 }
 
 .hand {
-  display: flex;
+  display: grid;
   position: absolute;
-  justify-content: center;
-  width: 100%;
+  width: 90%;
+  left: 5%;
+  justify-items: center;
+  max-width: 90%;
   bottom: 0;
   z-index: 1;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
 }
 .card {
   background-color: black;
   color: white;
   border-radius: 6px;
-  height: 7rem;
-  width: 5rem;
+  height: 10rem;
+  min-width: 5rem;
+  max-width: 5rem;
   transform-origin: bottom;
   position: relative;
-  padding: 0.25rem;
   display: flex;
+  padding: 0.2rem;
   flex-direction: column;
   transition: top 300ms;
-  overflow: hidden;
   margin: 0 0.25dvw;
 }
 .card * {
@@ -58,9 +60,11 @@ main {
 }
 
 .card.selected {
-  top: -0.25rem!important;
+  top: -2rem!important;
   box-shadow: 0 0 10px white;
+  z-index: 1;
 }
+
 .card:not(.enemy):hover {
   top: 0;
   transition: top 300ms;
@@ -115,16 +119,13 @@ main {
 
 
 .card-in-table {
+  overflow: hidden;
   height: 5rem;
   padding: 0.7rem .8rem;
 }
 .card-in-table:hover{
   scale: 1;
 }
-.card-in-table.enemy {
-  background-color: darkgray;
-}
-
 .spawn-vanish {
   animation: spawn-vanish 1s .5s forwards;
   transform-origin: center;
@@ -181,16 +182,18 @@ main {
   position: absolute;
   justify-content: center;
   width: 100%;
-  top: 2rem;
+  top: 0.5rem;
   bottom: auto;
 }
 .card:not(.card-in-table).enemy {
-  background-color: darkgray;
-  color: white;
+  background: url('../assets/card-back.png');
+  background-size:cover;
   border-radius: 6px;
+  min-width: 3rem;
+  max-width: 3rem;
   height: 6rem;
-  width: 4rem;
   position: relative;
+  padding: 0;
 }
 
 /***/
@@ -269,6 +272,11 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 .use {
   animation: use 500ms forwards;
+  z-index: 2;
+}
+.use.enemy {
+  animation: use2 500ms forwards;
+  z-index: 2;
 }
 @keyframes use {
   40%{
@@ -282,6 +290,20 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   100% {
     scale: 1;
     top: 0rem;
+  } 
+}
+@keyframes use2 {
+  40%{
+    bottom: -2rem;
+  }
+  55% {
+    scale: 1.1;
+    border: 2px solid rgb(201, 255, 255);
+    box-shadow: inset 5px white;
+  }
+  100% {
+    scale: 1;
+    bottom: 0rem;
   } 
 }
 @keyframes destroy {
@@ -321,7 +343,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   pointer-events: none;
 }
 .defeated {
-  /* filter: brightness(0.2); */
+  filter: brightness(0.2);
 }
 
 .card.card-in-table:not([data-damage=""])::before {
@@ -337,6 +359,10 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   font-weight: 900;
   opacity: 0;
   animation: damage-number 1s;
+}
+.defense-stat::before {
+  content: attr(data-defense);
+  color: white;
 }
 @keyframes damage-number {
   0% {

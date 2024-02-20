@@ -77,7 +77,7 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
         if (fight[1] && !fight[0] && cardsAv.length === 0) pickCard(true)
         else pickCard(false)
       }}>Pick Card</button>}
-    <div className="hand player" data-length={`${jsx.length}`}>
+    <div className="hand player" data-length={`${jsx.length}`} style={{gridTemplateColumns: `repeat(${jsx.length}, ${100/jsx.length}%)`}}>
       {jsx}
     </div>
   </React.Fragment>

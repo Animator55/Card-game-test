@@ -48,7 +48,7 @@ export const cardsD: cardsList = {
         type: "Defense",
         strength: 0,
         speed: 4,
-        defense: 3
+        defense: 7
     },
     "0004": {
         _id: "0004",
