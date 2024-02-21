@@ -37,7 +37,9 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
       || currentCards[i] === ""
       || (selectedReal.includes(currentCards[i]) && fight[1] && subRound.player === enemy._id)) continue
 
-    let className = selectedReal.includes(currentCards[i]) || selected.includes(currentCards[i]) ? fight[0] ? "card selected vanish" : "card selected" : "card"
+    let selectedLocal = selectedReal.includes(currentCards[i]) || selected.includes(currentCards[i])
+    let selectedIndex = selectedReal.indexOf(currentCards[i]) !== -1 ? selectedReal.indexOf(currentCards[i]) : selected.indexOf(currentCards[i])
+    let className = selectedLocal ? fight[0] ? "card selected vanish" : "card selected" : "card"
 
     let card = currentCards[i].split(".")[0]
     jsx.push(
@@ -45,7 +47,7 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
         className={className}
         onClick={() => { clickCard(currentCards[i]) }}
         key={Math.random()}
-        style={{ pointerEvents: subRound.player === player._id ? "all" : "none" }}
+        style={{ pointerEvents: subRound.player === player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}}
       >
         <h4>{cardsD[card].name}</h4>
         <div className='card-image' style={{ background: cardsD[card].image }}></div>

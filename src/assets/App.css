@@ -234,8 +234,8 @@ main {
   background-color: #ff854d;
   border-radius: 50%;
   width: 100%;
+  filter: blur(10px);
   height: 7rem;
-  box-shadow: 0 0px 1rem #ff854d;
   position: absolute;
 }
 .table::after {
@@ -245,7 +245,7 @@ main {
   border-radius: 50%;
   width: 100%;
   height: 7rem;
-  box-shadow: 0 0px 1rem #ff854d;
+  filter: blur(10px);
   position: absolute;
   animation: fadeIn 1s forwards;
 }
@@ -381,4 +381,15 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
     top: 0%;
     opacity: 0;
   }
+}
+
+main::before {
+  z-index: 3;
+  color: white;
+  content: "OCHO STYLE";
+  position: fixed;
+  padding: 50% 0;
+  inset: 0;
+  text-align: center;
+  font-size: xx-large;
 }

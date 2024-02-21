@@ -73,7 +73,10 @@ export default function App() {
 
   const [selectedEnemy, setSelEnemy] = React.useState<string[]>([])
   const [fight, activateFight] = React.useState([false, false])
-
+  const [lifes, setLifes] = React.useState({
+    player: 100,
+    enemy: 100
+  })
 
   // const attackToLife = (number: number)=>{
   //   console.log(number)
@@ -220,7 +223,6 @@ export default function App() {
         //   return
         // }
         card.offsetWidth
-        console.log(i)
         card.classList.add("use")
         // console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
         if(turn.action.attackTo && attackResult.attackToLife) {
