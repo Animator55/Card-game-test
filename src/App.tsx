@@ -4,21 +4,15 @@ import Hand from "./Hand"
 import { cardsD } from "./assets/cardsList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
-import { calculateFight, eventType, resultType } from "./logic/calculateFight"
+import { calculateFight } from "./logic/calculateFight"
+import { renderFight } from "./logic/renderFight"
+import { fadeOutTable } from "./logic/fadeOutTable"
+import { pickFromDeck } from "./logic/pickFromDeck"
+import { generateRandomEnemyCards } from "./logic/generateRandCard"
+import { checkCards } from "./logic/checkCards"
 
-type attackResult = {
-  result: string
-  damageTo?: {_id: string, dealed: number, defense: number}
-  attackToLife?: {_id: string, number: number}
-}
-
-const player = {
-  _id: "a"
-}
-
-const enemy = {
-  _id: "b"
-}
+const player = {_id: "a"}
+const enemy = {_id: "b"}
 
 const enemyCards = [
   ["0001.66786", "0002.876", "0000.68757667", "0002.675549", "0003.65756"],
@@ -26,40 +20,7 @@ const enemyCards = [
   ["0002.65875678646", "0000.678678656", "0001.67868767546", "0003.786786797", "0002.4678625"]
 ]
 
-const checkCards = (deck: string[])=>{
-  return !deck.some((card)=>{
-    return card !== ""
-  })
-}
-
-const pickFromDeck = (array: Array<string[]>, current: string[])=>{
-  let concatedDeck = (array.flat()).filter(el=>{return el !== "" && !current.includes(el)})
-  
-  let randomCard = Math.floor(Math.random() * concatedDeck.length)
-  return concatedDeck[randomCard]
-}
-
-const generateRandomEnemyCards = (current: string[], array: string[])=>{
-  if(current.length !== 0) return current 
-  let cardsAv = array.filter((el)=>{return el !== ""})
-  if(cardsAv.length === 0) {
-    let newCard = pickFromDeck(enemyCards, array)
-    return newCard !== undefined ? [newCard] : []
-  }
-  let randomAmount = Math.floor(Math.random() * 3) +1
-  if(randomAmount> cardsAv.length) randomAmount = cardsAv.length
-
-  let result:string[] = []
-  for (let i = 0; i < randomAmount; i++) {
-    let index = Math.floor(Math.random() * cardsAv.length);
-    if(result.includes(cardsAv[index])) {
-      i--
-      continue
-    }
-    result = [...result, cardsAv[index]]
-  }
-  return result
-}
+let turnVelocity = 2000
 
 export default function App() {
   const [round, setRound] = React.useState(0)
@@ -78,14 +39,10 @@ export default function App() {
     enemy: 100
   })
 
-  // const attackToLife = (number: number)=>{
-  //   console.log(number)
-  // }
+  /// FUNCTIONS
 
   const enemyPicksCard = (newCard: string)=>{
     enemyCards[round].push(newCard)
-    console.log(newCard, enemyCards[round])
-
     activateFight([false, false])
     setSelEnemy([])
     setSubRound({index: subRound.index + 1, player: player._id })
@@ -110,165 +67,49 @@ export default function App() {
     setSubRound({index: subRound.index + 1, player: direct ? player._id : enemy._id })
   }
 
-  const fadeOutTable = (time: number)=>{
-    let cardsInTable = document.querySelectorAll(".card-in-table")
-    let isPlayerTurn = subRound.player === player._id
-    if(cardsInTable.length === 0) return
-    for(let i=0; i<cardsInTable.length; i++) {
-      let isFromPlayer = !cardsInTable[i].classList.contains("enemy")
+  /// IA INTERACTIONS
 
-      let card = cardsInTable[i] as HTMLDivElement
-
-      if(!isPlayerTurn && isFromPlayer || isPlayerTurn && !isFromPlayer) card.classList.add("wait-vanish")
-
-      setTimeout(()=>{
-        card.classList.add("destroy-vanish")
-      }, time*1500+1000)
-      
-    } 
+  const IArespond = ()=>{
+    setSubRound({index: subRound.index, player: enemy._id})
+    setTimeout(()=>{ // defense bot
+      activateFight([true, true])
+      setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round], enemyCards))
+    }, 2000)
   }
 
-  const renderFight = (calculated: resultType[])=>{
-    let time = 0
-    // let lastSpeed = 0
-    // let lastPlayer = calculated[0].owner
-    let defeatedTargets: eventType[] = []
-
-    const searchCard = (id: string, tale: string)=>{
-      let index = 0
-      for(let i=0; i<calculated.length; i++){
-        if(calculated[i].card._id === id && calculated[i].tale === tale) {
-          index = i
-        }
-      }
-      return index
-    }
-
-    const checkIfDefeated = (_id: string, _tale: string)=>{
-      if(defeatedTargets.length === 0) return false
-      for(let j=0; j<defeatedTargets.length; j++ ) {
-        let id = defeatedTargets[j].card._id
-        let tale = defeatedTargets[j].tale
-        if(_id === id && _tale === tale) return true
-      }
-      return false
-    }
-
-    resultArray: for(let i=0; i<calculated.length; i++) {
-      let turn = calculated[i]
-
-      if(defeatedTargets.length !== 0) for(let j=0; j<defeatedTargets.length; j++ ) {
-        let id = defeatedTargets[j].card._id
-        let tale = defeatedTargets[j].tale
-        if(turn.card._id === id && turn.tale === tale) {continue resultArray; break }
-      }
-
-      // if(turn.owner !== lastPlayer) {
-      //   lastPlayer =  turn.owner
-      //   time = time+ 1
-      // }
-      // else if(turn.card.speed !== lastSpeed) {
-      //   lastSpeed =  turn.card.speed
-      //   time = time+ 2
-      // }
-      time = time + 1
-      let card = document.getElementById(`${turn.card._id+ "."+turn.tale}`)
-
-      const checkAttack = () : attackResult=>{
-        let result: attackResult = {result: ""}
-        if(!turn.action.attackTo) return result 
-
-        if(turn.action.attackTo.length === 0) return {result: ("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
-          _id: turn.owner === player._id ? enemy._id : player._id,
-          number: turn.card.strength
-        }}
-
-        let target: eventType | undefined 
-        action: for(let j=0; j<turn.action.attackTo.length; j++) {
-          if(defeatedTargets.includes(turn.action.attackTo[j])) continue action
-          target = turn.action.attackTo[j]
-          break
-        }
-        if(!target)  return {result:("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
-          _id: turn.owner === player._id ? enemy._id : player._id,
-          number: turn.card.strength
-        }}
-
-        let attack = turn.card.strength
-        let defense = target.card.defense
-
-        let currentTarget = document.getElementById(`${target.card._id + "." + target.tale}`)
-        if(currentTarget) {
-          let defenseEl = currentTarget.querySelector('.defense-stat') as HTMLElement
-          if(defenseEl && defenseEl.dataset.defense !== "") {
-            defense = Number(defenseEl.dataset.defense)
-          }
-        }
-
-        let index = searchCard(target.card._id, target.tale)
-
-        if(defense - attack <= 0) defeatedTargets.push(target)
-        let subresult = calculated[index].card.name + " and dealed " + attack +". "+ (defense - attack <= 0 ? target.card.name + " died" : "")
-        let damageTo = {_id: calculated[index].card._id +"." + calculated[index].tale, dealed: attack, defense: defense}
-
-        return {result:subresult, damageTo: damageTo}
-      }
-      let attackResult = checkAttack()
-
-      setTimeout(()=>{
-        if(!card) return
-        // if(checkIfDefeated(turn)) {
-        //   // card.classList.add("defeated")
-        //   console.log("died")
-        //   return
-        // }
-        card.offsetWidth
-        card.classList.add("use")
-        // console.log("used: "+ turn.card.name + ", from: "+ turn.owner + ", speed: "+ turn.card.speed)
-        if(turn.action.attackTo && attackResult.attackToLife) {
-          let playerDOM = document.querySelector("main")
-          if(!playerDOM) return
-          playerDOM.classList.remove('get-hit')
-          playerDOM.classList.remove('get-hit-enemy')
-          playerDOM.offsetWidth
-          if(attackResult.attackToLife._id === player._id) {
-            playerDOM.classList.add('get-hit')
-          }
-          else {
-            playerDOM.classList.add('get-hit-enemy')
-          }
-        }
-        else if(turn.action.attackTo && attackResult.damageTo) {
-          let enemyTarget = document.getElementById(attackResult.damageTo._id)
-          if(!enemyTarget) return
-          enemyTarget.dataset.damage = ""
-          enemyTarget.offsetWidth
-          enemyTarget.dataset.damage = `${attackResult.damageTo.dealed}`
-          let defenseEl = enemyTarget.querySelector('.defense-stat') as HTMLElement
-          if(defenseEl) defenseEl.dataset.defense = `${Number(defenseEl.dataset.defense) - attackResult.damageTo.dealed}`
-          enemyTarget.classList.remove('defeated')
-          enemyTarget.classList.remove('get-hit')
-
-          let splitedID = attackResult.damageTo._id.split(".")
-
-          if(checkIfDefeated(splitedID[0], splitedID[1]) || Number(defenseEl.dataset.defense) <= 0) {
-            // console.log("defeated card")
-            enemyTarget.offsetWidth
-            enemyTarget.classList.add('get-hit')
-            enemyTarget.classList.add('defeated')
-          }
-          else {
-            // console.log("normal hit")
-            enemyTarget.offsetWidth
-            enemyTarget.classList.add('get-hit')
-          }
-          // console.log("attackTo: "+ attackResult.result)
-        }
-      }, time*1500)
-    }
-
-    return time
+  const IAsend = ()=>{
+    setTimeout(()=>{
+      let newCard = pickFromDeck(enemyCards, enemyCards[round])
+      let pickCard = Math.random()>0.6 && enemyCards[round].filter((el)=>{return el!==""}).length < 5 && newCard !== undefined
+      if(pickCard) return enemyPicksCard(newCard)
+      activateFight([false, true])
+      setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round], enemyCards))
+      setSubRound({index: subRound.index, player: player._id})
+    }, 1000)
   }
+
+  const IAresult = ()=>{
+    let CalculateFight = calculateFight(selected, selectedEnemy, subRound.player === player._id ? enemy._id : player._id, [player._id, enemy._id])
+    let time = renderFight(CalculateFight, player, enemy, turnVelocity)
+    fadeOutTable(time, turnVelocity, subRound.player === player._id)
+    
+    setTimeout(()=>{// result
+      let newCards = cards[round].map((el)=>{
+        return selected.includes(el) ? "": el
+      })
+      for (let i = 0; i < enemyCards[round].length; i++) {
+        if(selectedEnemy.includes(enemyCards[round][i])) enemyCards[round].splice(i, 1, "")
+      }
+      activateFight([false, false])
+      setCards(Object.values({...cards, [round]: newCards}) as Array<string[]>)
+      setSelected([])
+      setSelEnemy([])
+      setSubRound({index: subRound.index + 1, player: subRound.player })
+    }, time*turnVelocity +2000)
+  }
+
+  /// COMPONENTS
+
 
   const RenderEnemyCards = ()=>{
     let jsx = []
@@ -277,16 +118,11 @@ export default function App() {
       if(enemyCards[round][i] === "" 
       || (selectedEnemy.includes(enemyCards[round][i]) && fight[0] && subRound.player === player._id)) continue
        
-      let className = selectedEnemy.includes(enemyCards[round][i]) ? fight[1] ? "card enemy selected vanish" : "card enemy selected" : "card enemy"
+      let className = selectedEnemy.includes(enemyCards[round][i]) ? 
+        fight[1] ? "card enemy selected vanish" : "card enemy selected" 
+        : "card enemy"
 
-      jsx.push(
-        <div 
-          className={className}
-          key={i+"enemyCard"}
-        >
-          {/* {enemyCards[round][i]} */}
-        </div>
-      )
+      jsx.push(<div className={className} key={i+"enemyCard"}/>)
     }
 
     return <div className="hand enemy" data-length={`${jsx.length}`}>{jsx}</div>
@@ -299,7 +135,7 @@ export default function App() {
           if(!card || card === "") return
           let card_id = card.split(".")[0]
           return <div 
-            className="card card-in-table enemy spawn-vanish"
+            className="card card-in-table enemy spawn-vanish hide"
             id={card}
             key={card+"intable-enemy"}
             data-damage={""}
@@ -328,7 +164,7 @@ export default function App() {
           if(!card || card === "") return
           let card_id = card.split(".")[0]
           return <div 
-            className="card card-in-table spawn-vanish"
+            className="card card-in-table spawn-vanish hide"
             id={card}
             key={card+"intable"}
             data-damage={""}
@@ -355,6 +191,8 @@ export default function App() {
     </section>
   }
 
+  /// EFFECTS
+
   React.useEffect(()=>{
     if(subRound.player === "") setSubRound({...subRound, player: player._id})
     if(checkCards(cards[round]) 
@@ -369,46 +207,9 @@ export default function App() {
   }, [subRound])
 
   React.useEffect(()=>{
-    if(fight[0] && !fight[1]) {
-      setSubRound({index: subRound.index, player: enemy._id})
-      setTimeout(()=>{ // defense bot
-        console.log("confirm battle ia")
-        activateFight([true, true])
-        setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round]))
-      }, 2000)
-    }
-
-    else if(fight[0] && fight[1]) {
-      let CalculateFight = calculateFight(selected, selectedEnemy, subRound.player === player._id ? enemy._id : player._id, [player._id, enemy._id])
-      let time = renderFight(CalculateFight)
-      fadeOutTable(time)
-      
-      setTimeout(()=>{// result
-        console.log("final fight")
-        let newCards = cards[round].map((el)=>{
-          return selected.includes(el) ? "": el
-        })
-        for (let i = 0; i < enemyCards[round].length; i++) {
-          if(selectedEnemy.includes(enemyCards[round][i])) enemyCards[round].splice(i, 1, "")
-        }
-        activateFight([false, false])
-        setCards(Object.values({...cards, [round]: newCards}) as Array<string[]>)
-        setSelected([])
-        setSelEnemy([])
-        setSubRound({index: subRound.index + 1, player: subRound.player })
-      }, time*1500 +2000)
-    }
-
-    // attack bot
-    else if(!fight[0] && !fight[1] && subRound.player !== player._id && subRound.player !== "") setTimeout(()=>{
-      console.log("boot battle ia")
-      let newCard = pickFromDeck(enemyCards, enemyCards[round])
-      let pickCard = Math.random()>0.6 && enemyCards[round].filter((el)=>{return el!==""}).length < 5 && newCard !== undefined
-      if(pickCard) return enemyPicksCard(newCard)
-      activateFight([false, true])
-      setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round]))
-      setSubRound({index: subRound.index, player: player._id})
-    }, 1000)
+    if(fight[0] && !fight[1]) IArespond()
+    else if(fight[0] && fight[1]) IAresult()
+    else if(!fight[0] && !fight[1] && subRound.player !== player._id && subRound.player !== "") IAsend()
   }, [fight]) 
 
   return <main data-turn={subRound.player === player._id ? "0" : "1"}>
