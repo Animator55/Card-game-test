@@ -1,16 +1,19 @@
+import { userType } from "../vite-env"
 import { eventType, resultType } from "./calculateFight"
 
 
 type attackResult = {
-    result: string
-    damageTo?: {_id: string, dealed: number, defense: number}
+    damageTo?: {_id: string, dealed: number, defense: number, otherTargets: eventType[]}
     attackToLife?: {_id: string, number: number}
 }
 
 
-export const renderFight = (calculated: resultType[], player:{_id: string}, enemy:{_id: string}, turnVelocity:number)=>{
+export const renderFight = (calculated: resultType[], player:userType, enemy:userType, turnVelocity:number)=>{
   let time = 0
   let defeatedTargets: eventType[] = []
+
+  let playerLife = player.life
+  let enemyLife = enemy.life
 
   const searchCard = (id: string, tale: string)=>{
     let index = 0
@@ -44,21 +47,23 @@ export const renderFight = (calculated: resultType[], player:{_id: string}, enem
     let card = document.getElementById(`${turn.card._id+ "."+turn.tale}`)
 
     const checkAttack = () : attackResult=>{
-      let result: attackResult = {result: ""}
+      let result: attackResult = {}
       if(!turn.action.attackTo) return result 
 
-      if(turn.action.attackTo.length === 0) return {result: ("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
+      if(turn.action.attackTo.length === 0) return {attackToLife: {
         _id: turn.owner === player._id ? enemy._id : player._id,
         number: turn.card.strength
       }}
 
       let target: eventType | undefined 
+      let otherTargets: eventType[] = []
+
       action: for(let j=0; j<turn.action.attackTo.length; j++) {
-        if(defeatedTargets.includes(turn.action.attackTo[j])) continue action
-        target = turn.action.attackTo[j]
-        break
+        if(checkIfDefeated(turn.action.attackTo[j].card._id, turn.action.attackTo[j].tale)) continue action
+        if(target === undefined) target = turn.action.attackTo[j]
+        else otherTargets.push(turn.action.attackTo[j])
       }
-      if(!target)  return {result:("attack to " + turn.owner === player._id ? enemy._id : player._id), attackToLife: {
+      if(!target)  return {attackToLife: {
         _id: turn.owner === player._id ? enemy._id : player._id,
         number: turn.card.strength
       }}
@@ -77,12 +82,42 @@ export const renderFight = (calculated: resultType[], player:{_id: string}, enem
       let index = searchCard(target.card._id, target.tale)
 
       if(defense - attack <= 0) defeatedTargets.push(target)
-      let subresult = calculated[index].card.name + " and dealed " + attack +". "+ (defense - attack <= 0 ? target.card.name + " died" : "")
-      let damageTo = {_id: calculated[index].card._id +"." + calculated[index].tale, dealed: attack, defense: defense}
+      let damageTo = {
+        _id: calculated[index].card._id +"." + calculated[index].tale, 
+        dealed: attack, 
+        defense: defense,
+        otherTargets: otherTargets
+      }
 
-      return {result:subresult, damageTo: damageTo}
+      return {damageTo: damageTo}
     }
     let attackResult = checkAttack()
+
+    const attackLife = (attackResult: attackResult)=>{
+      if(!attackResult.attackToLife) return
+      let playerDOM = document.querySelector("main")
+      if(!playerDOM) return
+      playerDOM.classList.remove('get-hit')
+      playerDOM.classList.remove('get-hit-enemy')
+      playerDOM.offsetWidth
+      // to player
+      if(attackResult.attackToLife._id === player._id) {
+        playerDOM.classList.add('get-hit')
+        let bar = playerDOM.lastChild?.firstChild as HTMLElement
+        if(!bar) return
+        playerLife = playerLife - attackResult.attackToLife.number
+        bar.style.width = `${playerLife}%`
+      }
+      // to enemy
+      else {
+        playerDOM.classList.add('get-hit-enemy')
+        let bar = playerDOM.firstChild?.firstChild as HTMLElement
+        if(!bar) return
+        enemyLife = enemyLife - attackResult.attackToLife.number
+        bar.style.width = `${enemyLife}%`
+      }
+      playerDOM.offsetWidth
+    }
 
     setTimeout(()=>{
       if(!card) return
@@ -96,28 +131,41 @@ export const renderFight = (calculated: resultType[], player:{_id: string}, enem
         if(!card) return
         card.offsetWidth
         card.classList.add("use")
-        if(turn.action.attackTo && attackResult.attackToLife) {
-          let playerDOM = document.querySelector("main")
-          if(!playerDOM) return
-          playerDOM.classList.remove('get-hit')
-          playerDOM.classList.remove('get-hit-enemy')
-          playerDOM.offsetWidth
-          if(attackResult.attackToLife._id === player._id) {
-            playerDOM.classList.add('get-hit')
-          }
-          else {
-            playerDOM.classList.add('get-hit-enemy')
-          }
-          playerDOM.offsetWidth
-        }
+
+        // check if attack direct to player or enemy
+        if(turn.action.attackTo && attackResult.attackToLife) attackLife(attackResult)
+        //check if the card is offensive
         else if(turn.action.attackTo && attackResult.damageTo) {
           let enemyTarget = document.getElementById(attackResult.damageTo._id)
           if(!enemyTarget) return
+          let defenseEl = enemyTarget.querySelector('.defense-stat') as HTMLElement
+          if(!defenseEl) return 
+
+          // check if card already died
+          if(Number(defenseEl.dataset.defense) <= 0) {
+            //attack to user
+            let attackToLife = {_id: turn.owner === player._id ? enemy._id : player._id, number: attackResult.damageTo.dealed}
+            let targets = attackResult.damageTo.otherTargets
+            let toLife = true
+            if(targets.length === 0) attackLife({attackToLife})
+            //attack to nextCard
+            else other: for(let index = 0; index < targets.length; index++) {
+              let targ = document.getElementById(attackResult.damageTo._id) as HTMLElement
+              let defEl = targ.querySelector('.defense-stat') as HTMLElement
+
+              if(Number(defEl.dataset.defense) <= 0) continue other
+              enemyTarget = targ
+              defenseEl = defEl
+              toLife = false
+            }
+            
+            if(toLife) return attackLife({attackToLife})
+          }
+          defenseEl.dataset.defense = `${Number(defenseEl.dataset.defense) - attackResult.damageTo.dealed}`
           enemyTarget.dataset.damage = ""
           enemyTarget.offsetWidth
           enemyTarget.dataset.damage = `${attackResult.damageTo.dealed}`
-          let defenseEl = enemyTarget.querySelector('.defense-stat') as HTMLElement
-          if(defenseEl) defenseEl.dataset.defense = `${Number(defenseEl.dataset.defense) - attackResult.damageTo.dealed}`
+
           enemyTarget.classList.remove('defeated')
           enemyTarget.classList.remove('get-hit')
 

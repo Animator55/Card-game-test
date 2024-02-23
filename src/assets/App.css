@@ -401,3 +401,32 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
     opacity: 0;
   }
 }
+
+
+/***/
+
+.player-life, .enemy-life {
+  position: absolute;
+  bottom: 0;
+  width: 80%;
+  left: 10%;
+  height: 0.5rem;
+  padding: 0.4rem;
+  background-color: black;
+  z-index: 3;
+}
+
+.enemy-life {
+  bottom: auto;
+  top: 0;
+}
+
+.bar {
+  height: 100%;
+  transition: width 300ms;
+  background-color: green;
+}
+
+.player-life > .bar {
+  background-color: red;
+}

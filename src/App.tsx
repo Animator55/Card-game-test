@@ -10,6 +10,7 @@ import { fadeOutTable } from "./logic/fadeOutTable"
 import { pickFromDeck } from "./logic/pickFromDeck"
 import { generateRandomEnemyCards } from "./logic/generateRandCard"
 import { checkCards } from "./logic/checkCards"
+import { userType } from "./vite-env"
 
 const player = {_id: "a"}
 const enemy = {_id: "b"}
@@ -34,9 +35,15 @@ export default function App() {
 
   const [selectedEnemy, setSelEnemy] = React.useState<string[]>([])
   const [fight, activateFight] = React.useState([false, false])
-  const [lifes, setLifes] = React.useState({
-    player: 100,
-    enemy: 100
+  const [users, setUsers] = React.useState<{player: userType, enemy: userType}>({
+    player: {
+      _id: "a",
+      life: 100
+    },
+    enemy: {
+      _id: "b",
+      life: 100
+    }
   })
 
   /// FUNCTIONS
@@ -45,7 +52,7 @@ export default function App() {
     enemyCards[round].push(newCard)
     activateFight([false, false])
     setSelEnemy([])
-    setSubRound({index: subRound.index + 1, player: player._id })
+    setSubRound({index: subRound.index + 1, player: users.player._id })
   }
 
   const pickCard = (direct: boolean)=>{
@@ -64,13 +71,13 @@ export default function App() {
     setCards(Object.values({...cards, [round]: [...newCards, newCard]}) as Array<string[]>)
     activateFight(direct ? [true, true] : [false, false])
     setSelected(direct ? [newCard] : [])
-    setSubRound({index: subRound.index + 1, player: direct ? player._id : enemy._id })
+    setSubRound({index: subRound.index + 1, player: direct ? users.player._id : users.enemy._id })
   }
 
   /// IA INTERACTIONS
 
   const IArespond = ()=>{
-    setSubRound({index: subRound.index, player: enemy._id})
+    setSubRound({index: subRound.index, player: users.enemy._id})
     setTimeout(()=>{ // defense bot
       activateFight([true, true])
       setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round], enemyCards))
@@ -84,15 +91,15 @@ export default function App() {
       if(pickCard) return enemyPicksCard(newCard)
       activateFight([false, true])
       setSelEnemy(generateRandomEnemyCards(selectedEnemy, enemyCards[round], enemyCards))
-      setSubRound({index: subRound.index, player: player._id})
+      setSubRound({index: subRound.index, player: users.player._id})
     }, 1000)
   }
 
   const IAresult = ()=>{
-    let CalculateFight = calculateFight(selected, selectedEnemy, subRound.player === player._id ? enemy._id : player._id, [player._id, enemy._id])
-    let time = renderFight(CalculateFight, player, enemy, turnVelocity)
-    fadeOutTable(time, turnVelocity, subRound.player === player._id)
-    
+    let CalculateFight = calculateFight(selected, selectedEnemy, subRound.player === users.player._id ? users.enemy._id : users.player._id, [users.player._id, users.enemy._id])
+    let time = renderFight(CalculateFight, users.player, users.enemy, turnVelocity)
+    fadeOutTable(time, turnVelocity, subRound.player === users.player._id)
+
     setTimeout(()=>{// result
       let newCards = cards[round].map((el)=>{
         return selected.includes(el) ? "": el
@@ -100,10 +107,26 @@ export default function App() {
       for (let i = 0; i < enemyCards[round].length; i++) {
         if(selectedEnemy.includes(enemyCards[round][i])) enemyCards[round].splice(i, 1, "")
       }
+    
+      let life1 = 100
+      let life2 = 100
+      let playerLifeEl = document.querySelector(".player-life") as HTMLElement
+      let enemyLifeEl = document.querySelector(".enemy-life") as HTMLElement
+      if(playerLifeEl && enemyLifeEl) {
+        let bar1 = playerLifeEl.firstChild as HTMLElement
+        let bar2 = enemyLifeEl.firstChild as HTMLElement
+        life1 = parseInt(bar1.style.width)
+        life2 = parseInt(bar2.style.width)
+      }
+
       activateFight([false, false])
       setCards(Object.values({...cards, [round]: newCards}) as Array<string[]>)
       setSelected([])
       setSelEnemy([])
+      setUsers({
+        player: {_id: users.player._id, life: life1},
+        enemy: {_id: users.enemy._id, life: life2}
+      })
       setSubRound({index: subRound.index + 1, player: subRound.player })
     }, time*turnVelocity +2000)
   }
@@ -116,7 +139,7 @@ export default function App() {
 
     for(let i=0; i<enemyCards[round].length; i++) {
       if(enemyCards[round][i] === "" 
-      || (selectedEnemy.includes(enemyCards[round][i]) && fight[0] && subRound.player === player._id)) continue
+      || (selectedEnemy.includes(enemyCards[round][i]) && fight[0] && subRound.player === users.player._id)) continue
        
       let className = selectedEnemy.includes(enemyCards[round][i]) ? 
         fight[1] ? "card enemy selected vanish" : "card enemy selected" 
@@ -191,10 +214,21 @@ export default function App() {
     </section>
   }
 
+  const PlayerLife = ()=>{
+    return <section className="player-life">
+      <div className="bar" style={{width: users.player.life +"%"}}></div>
+    </section>
+  }
+  const EnemyLife = ()=>{
+    return <section className="enemy-life">
+      <div className="bar" style={{width: users.enemy.life +"%"}}></div>
+    </section>
+  }
+
   /// EFFECTS
 
   React.useEffect(()=>{
-    if(subRound.player === "") setSubRound({...subRound, player: player._id})
+    if(subRound.player === "") setSubRound({...subRound, player: users.player._id})
     if(checkCards(cards[round]) 
       && checkCards(enemyCards[round]) 
       && selected.length === 0 
@@ -209,10 +243,11 @@ export default function App() {
   React.useEffect(()=>{
     if(fight[0] && !fight[1]) IArespond()
     else if(fight[0] && fight[1]) IAresult()
-    else if(!fight[0] && !fight[1] && subRound.player !== player._id && subRound.player !== "") IAsend()
+    else if(!fight[0] && !fight[1] && subRound.player !== users.player._id && subRound.player !== "") IAsend()
   }, [fight]) 
 
-  return <main data-turn={subRound.player === player._id ? "0" : "1"}>
+  return <main data-turn={subRound.player === users.player._id ? "0" : "1"}>
+    <EnemyLife/>
     <RenderEnemyCards/>
     <RenderTable/>
     <Hand
@@ -225,5 +260,6 @@ export default function App() {
       selectedReal={selected}
       pickCard={pickCard}
     />
+    <PlayerLife/>
   </main>
 }
