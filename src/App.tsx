@@ -3,7 +3,7 @@ import './assets/App.css'
 import Hand from "./Hand"
 import { cardsD } from "./assets/cardsList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faDragon, faFire, faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
 import { calculateFight } from "./logic/calculateFight"
 import { renderFight } from "./logic/renderFight"
 import { fadeOutTable } from "./logic/fadeOutTable"
@@ -11,6 +11,11 @@ import { pickFromDeck } from "./logic/pickFromDeck"
 import { generateRandomEnemyCards } from "./logic/generateRandCard"
 import { checkCards } from "./logic/checkCards"
 import { userType } from "./vite-env"
+
+
+type router = {
+  [key:string] : IconDefinition
+}
 
 const player = {_id: "a"}
 const enemy = {_id: "b"}
@@ -38,11 +43,11 @@ export default function App() {
   const [users, setUsers] = React.useState<{player: userType, enemy: userType}>({
     player: {
       _id: "a",
-      life: 100
+      life: 20
     },
     enemy: {
       _id: "b",
-      life: 100
+      life: 20
     }
   })
 
@@ -108,15 +113,15 @@ export default function App() {
         if(selectedEnemy.includes(enemyCards[round][i])) enemyCards[round].splice(i, 1, "")
       }
     
-      let life1 = 100
-      let life2 = 100
+      let life1 = 20
+      let life2 = 20
       let playerLifeEl = document.querySelector(".player-life") as HTMLElement
       let enemyLifeEl = document.querySelector(".enemy-life") as HTMLElement
       if(playerLifeEl && enemyLifeEl) {
         let bar1 = playerLifeEl.firstChild as HTMLElement
         let bar2 = enemyLifeEl.firstChild as HTMLElement
-        life1 = parseInt(bar1.style.width)
-        life2 = parseInt(bar2.style.width)
+        life1 = Math.round(parseInt(bar1.style.width)/5) 
+        life2 = Math.round(parseInt(bar2.style.width)/5) 
       }
 
       activateFight([false, false])
@@ -152,6 +157,12 @@ export default function App() {
   }
 
   const RenderTable = ()=>{
+    const iconSelector: router = {
+      "Attack": faFire,
+      "Invocation": faDragon,
+      "Defense":  faShield
+    }
+
     return <section className="table">
       <div className="enemy-table">
         {fight[1] && selectedEnemy.length !== 0 && selectedEnemy.map(card=>{
@@ -164,7 +175,9 @@ export default function App() {
             data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
-            <div className='card-image' style={{background: cardsD[card_id].image}}></div>
+            <div className='card-image' style={{ color: cardsD[card_id].image }}>
+              <FontAwesomeIcon icon={iconSelector[cardsD[card_id].type]}/>
+            </div>
             <div className='d-flex'>
               <div className='d-flex'>
                 <h5>{cardsD[card_id].strength}</h5>
@@ -193,7 +206,9 @@ export default function App() {
             data-damage={""}
           >
             <h4>{cardsD[card_id].name}</h4>
-            <div className='card-image' style={{background: cardsD[card_id].image}}></div>
+            <div className='card-image' style={{ color: cardsD[card_id].image }}>
+              <FontAwesomeIcon icon={iconSelector[cardsD[card_id].type]}/>
+            </div>
             <div className='d-flex'>
               <div className='d-flex'>
                 <h5>{cardsD[card_id].strength}</h5>
@@ -216,12 +231,12 @@ export default function App() {
 
   const PlayerLife = ()=>{
     return <section className="player-life">
-      <div className="bar" style={{width: users.player.life +"%"}}></div>
+      <div className="bar" style={{width: users.player.life*5 +"%"}}></div>
     </section>
   }
   const EnemyLife = ()=>{
     return <section className="enemy-life">
-      <div className="bar" style={{width: users.enemy.life +"%"}}></div>
+      <div className="bar" style={{width: users.enemy.life*5 +"%"}}></div>
     </section>
   }
 

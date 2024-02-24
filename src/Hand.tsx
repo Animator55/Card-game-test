@@ -1,7 +1,7 @@
 import React from 'react'
 import { cardsD } from './assets/cardsList'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faShield, faShoePrints } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faDragon, faFire, faShield, faShoePrints } from '@fortawesome/free-solid-svg-icons'
 import { faHandFist } from '@fortawesome/free-solid-svg-icons/faHandFist'
 
 type Props = {
@@ -13,6 +13,9 @@ type Props = {
   confirm: Function
   pickCard: Function
   selectedReal: string[]
+}
+type router = {
+  [key:string] : IconDefinition
 }
 
 export default function Hand({ confirm, player, enemy, currentCards, subRound, fight, selectedReal, pickCard }: Props) {
@@ -42,6 +45,11 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
     let className = selectedLocal ? fight[0] ? "card selected vanish" : "card selected" : "card"
 
     let card = currentCards[i].split(".")[0]
+    const iconSelector: router = {
+      "Attack": faFire,
+      "Invocation": faDragon,
+      "Defense":  faShield
+    }
     jsx.push(
       <div
         className={className}
@@ -50,7 +58,9 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
         style={{ pointerEvents: subRound.player === player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}}
       >
         <h4>{cardsD[card].name}</h4>
-        <div className='card-image' style={{ background: cardsD[card].image }}></div>
+        <div className='card-image' style={{ color: cardsD[card].image }}>
+          <FontAwesomeIcon icon={iconSelector[cardsD[card].type]}/>
+        </div>
         <div className='d-flex'>
           <div className='d-flex'>
             <h5>{cardsD[card].strength}</h5>

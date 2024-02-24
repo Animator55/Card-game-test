@@ -106,7 +106,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
         let bar = playerDOM.lastChild?.firstChild as HTMLElement
         if(!bar) return
         playerLife = playerLife - attackResult.attackToLife.number
-        bar.style.width = `${playerLife}%`
+        bar.style.width = `${playerLife*5}%`
       }
       // to enemy
       else {
@@ -114,7 +114,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
         let bar = playerDOM.firstChild?.firstChild as HTMLElement
         if(!bar) return
         enemyLife = enemyLife - attackResult.attackToLife.number
-        bar.style.width = `${enemyLife}%`
+        bar.style.width = `${enemyLife*5}%`
       }
       playerDOM.offsetWidth
     }

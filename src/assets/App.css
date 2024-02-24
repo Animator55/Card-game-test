@@ -21,11 +21,11 @@ main {
   left: 5%;
   justify-items: center;
   max-width: 90%;
-  bottom: 0;
+  bottom: 1rem;
   z-index: 1;
 }
 .card {
-  background-color: black;
+  background-color: #2b2525;
   color: white;
   border-radius: 6px;
   height: 7rem;
@@ -46,6 +46,12 @@ main {
 }
 .card-image {
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card-image > svg {
+  font-size: 2.5rem;
 }
 .card > .d-flex {
   justify-content: space-between;
@@ -182,12 +188,14 @@ main {
   position: absolute;
   justify-content: center;
   width: 100%;
-  top: 0.5rem;
+  top: 1.5rem;
   bottom: auto;
 }
 .card:not(.card-in-table).enemy {
-  background: url('../assets/card-back.png');
-  background-size:cover;
+  /* background: url('../assets/card-back.png');
+  background-size:cover; */
+  
+  background-color: #2b2525;
   border-radius: 6px;
   min-width: 3.5rem;
   max-width: 3.5rem;
@@ -291,10 +299,12 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .hide::after {
   opacity: 1;
   content: "";
-  background: url('../assets/card-back.png');
-  background-size:cover;
+  /* background: url('../assets/card-back.png');
+  background-size:cover; */
+  background-color: #2b2525;
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 .use {
