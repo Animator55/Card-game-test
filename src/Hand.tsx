@@ -82,7 +82,7 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
   let cardsAv = currentCards.filter((el) => { return el !== "" })
 
   return <React.Fragment>
-    {selected.length !== 0 && <button className="fixed-b-2" onClick={() => { confirm(selected); setSelected([]) }}>Fight</button>}
+    {selected.length !== 0 && <button className="fixed-b-2" onClick={() => { confirm(selected); setSelected([]) }}></button>}
     {(cardsAv.length < 5 && (subRound.player === player._id && !fight[1])
       || (fight[1] && !fight[0] && cardsAv.length === 0))
       && <button className="deck" onClick={() => {
