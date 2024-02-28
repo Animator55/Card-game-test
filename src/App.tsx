@@ -11,6 +11,7 @@ import { pickFromDeck } from "./logic/pickFromDeck"
 import { generateRandomEnemyCards } from "./logic/generateRandCard"
 import { checkCards } from "./logic/checkCards"
 import { userType } from "./vite-env"
+import Peer, { DataConnection } from "peerjs"
 
 
 type router = {
@@ -27,8 +28,13 @@ const enemyCards = [
 ]
 
 let turnVelocity = 2000
+let justAddedCardPlayer = ""
+let justAddedCardEnemy = ""
+let conn: DataConnection | undefined = undefined
+let peer: Peer | undefined = undefined
 
 export default function App() {
+  const [activateIA, setIA] = React.useState(false)
   const [round, setRound] = React.useState(0)
   const [subRound, setSubRound] = React.useState({index: 0, player: ""})
   const [selected, setSelected] = React.useState<string[]>([])
@@ -42,11 +48,11 @@ export default function App() {
   const [fight, activateFight] = React.useState([false, false])
   const [users, setUsers] = React.useState<{player: userType, enemy: userType}>({
     player: {
-      _id: "a",
+      _id: "",
       life: 20
     },
     enemy: {
-      _id: "b",
+      _id: "",
       life: 20
     }
   })
@@ -55,6 +61,7 @@ export default function App() {
 
   const enemyPicksCard = (newCard: string)=>{
     enemyCards[round].push(newCard)
+    justAddedCardEnemy = newCard
     activateFight([false, false])
     setSelEnemy([])
     setSubRound({index: subRound.index + 1, player: users.player._id })
@@ -73,10 +80,86 @@ export default function App() {
       else if(deleteAmount === 0 || card !== "") return card
     })
 
+    justAddedCardPlayer = newCard
+
     setCards(Object.values({...cards, [round]: [...newCards, newCard]}) as Array<string[]>)
     activateFight(direct ? [true, true] : [false, false])
     setSelected(direct ? [newCard] : [])
     setSubRound({index: subRound.index + 1, player: direct ? users.player._id : users.enemy._id })
+  }
+
+  /// CONNECTIONS 
+
+  
+  const connectToPeer = (duel: string | undefined) => { // trys to connect to peers, if chat is undefined, func will loop
+    if (conn !== undefined || peer === undefined) return
+
+    function closeConn() {
+      console.log('closeConn')
+      conn = undefined
+    }
+
+    if (duel !== undefined) {
+      console.log('Connecting to ' + duel)
+      if(!peer.connect) return
+      conn = peer.connect(duel)
+      conn.on('close', closeConn)
+      setUsers({...users, enemy: {...users.enemy, _id: duel}})
+    }
+    // else for (const key in chats) {
+    //   if (key !== peer.id) {
+    //     console.log('Trying to connect to ' + chats[key].name)
+    //     conn = peer.connect(chats[key])
+    //     conn.on('close', closeConn)
+    //   }
+    // }
+  }
+  function connection(id: string): undefined | string { //create session
+    // if(!checkValidId(id, password)) return "invalid"
+    peer = new Peer(id);
+    if (peer === undefined) return
+
+    peer.on('error', function (err) {
+      switch (err.type) {
+        case 'unavailable-id':
+          console.log(id + ' is taken')
+          peer = undefined
+          break
+        case 'peer-unavailable':
+          console.log('user offline')
+          break
+        default:
+          conn = undefined
+          console.log('an error happened')
+      }
+      return false;
+    })
+    peer.on('open', function (id: string) {
+      if (peer === undefined || peer.id === undefined) return
+      console.log('Hi ' + id)
+      setUsers({...users, player: {...users.player, _id: peer.id}})
+      // connectToPeer(undefined)
+    })
+    if (conn !== undefined) return
+
+    peer.on("connection", function (conn: DataConnection | undefined) {
+      if(!conn) return
+      console.log(conn.peer + ' is online')
+
+      conn.on("data", function (data) { //RECIEVED DATA
+        console.log("sended to you " + data)
+        activateFight([fight[0], true])
+        setSelEnemy(data as string[])
+        setSubRound({index: subRound.index, player: users.player._id})
+      })
+
+      conn.on('close', function () {
+        if(!conn) return
+        console.log('connection was closed by ' + conn.peer)
+        conn.close()
+        conn = undefined
+      })
+    });
   }
 
   /// IA INTERACTIONS
@@ -141,15 +224,17 @@ export default function App() {
 
   const RenderEnemyCards = ()=>{
     let jsx = []
+    let currentCards = enemyCards[round]
 
-    for(let i=0; i<enemyCards[round].length; i++) {
-      if(enemyCards[round][i] === "" 
-      || (selectedEnemy.includes(enemyCards[round][i]) && fight[0] && subRound.player === users.player._id)) continue
+    for(let i=0; i<currentCards.length; i++) {
+      if(currentCards[i] === "" 
+      || (selectedEnemy.includes(currentCards[i]) && fight[0] && subRound.player === users.player._id)) continue
        
-      let className = selectedEnemy.includes(enemyCards[round][i]) ? 
+      let className = selectedEnemy.includes(currentCards[i]) ? 
         fight[1] ? "card enemy selected vanish" : "card enemy selected" 
         : "card enemy"
 
+      className = justAddedCardEnemy !== "" && justAddedCardEnemy === currentCards[i] ? className + " spawn-vanish" : className
       jsx.push(<div className={className} key={i+"enemyCard"}/>)
     }
 
@@ -198,6 +283,7 @@ export default function App() {
       <div className="player-table">
         {fight[0] && selected.length !== 0 && selected.map(card=>{
           if(!card || card === "") return
+          
           let card_id = card.split(".")[0]
           return <div 
             className="card card-in-table spawn-vanish hide"
@@ -243,7 +329,15 @@ export default function App() {
   /// EFFECTS
 
   React.useEffect(()=>{
-    if(subRound.player === "") setSubRound({...subRound, player: users.player._id})
+    if(users.player._id === "" || users.enemy._id === "") return console.log("user or enemy is not selected")
+
+    if(subRound.player === "") setSubRound({...subRound, player: users.player._id > users.enemy._id ? users.player._id : users.enemy._id})
+  }, [users])
+
+  React.useEffect(()=>{
+    if(users.player._id === "" || users.enemy._id === "") return console.log("user or enemy is not selected")
+    if(subRound.player === "") return
+
     if(checkCards(cards[round]) 
       && checkCards(enemyCards[round]) 
       && selected.length === 0 
@@ -256,10 +350,25 @@ export default function App() {
   }, [subRound])
 
   React.useEffect(()=>{
-    if(fight[0] && !fight[1]) IArespond()
-    else if(fight[0] && fight[1]) IAresult()
-    else if(!fight[0] && !fight[1] && subRound.player !== users.player._id && subRound.player !== "") IAsend()
+    justAddedCardEnemy = ""
+    justAddedCardPlayer = ""
+    if(users.player._id === "" || users.enemy._id === "") return console.log("user or enemy is not selected")
+
+    if(activateIA) {
+      if(fight[0] && !fight[1]) IArespond()
+      else if(fight[0] && fight[1]) IAresult()
+      else if(!fight[0] && !fight[1] && subRound.player !== users.player._id && subRound.player !== "") IAsend()
+    }
+    else if(peer && conn) {
+      if(fight[0] && !fight[1]) conn.send(selected)
+      else if(fight[0] && fight[1]) conn.send(selected)
+    }
   }, [fight]) 
+
+  let dataTurn = "2"
+
+  if(subRound.player === users.player._id) dataTurn = "0"
+  else if(subRound.player === users.enemy._id) dataTurn = "1"
 
   return <main data-turn={subRound.player === users.player._id ? "0" : "1"}>
     <EnemyLife/>
@@ -267,14 +376,27 @@ export default function App() {
     <RenderTable/>
     <Hand
       confirm={(sel: string[])=>{setSelected(sel); activateFight([true, fight[1]])}}
-      player={player}
-      enemy={enemy}
+      users={users}
       subRound={subRound}
       fight={fight} 
       currentCards={cards[round]}
       selectedReal={selected}
       pickCard={pickCard}
+      jstAdCard={justAddedCardPlayer}
     />
     <PlayerLife/>
+
+    <div className="log-with">
+      <p style={{color: "white"}}>log-with</p>
+      <button onClick={()=>{connection("a")}}>a</button>
+      <button onClick={()=>{connection("b")}}>b</button>
+      <button onClick={()=>{connection("c")}}>c</button>
+    </div>
+    <div className="log-with-2">
+      <p style={{color: "white"}}>connect to</p>
+      <button onClick={()=>{connectToPeer("a")}}>a</button>
+      <button onClick={()=>{connectToPeer("b")}}>b</button>
+      <button onClick={()=>{connectToPeer("c")}}>c</button>
+    </div>
   </main>
 }

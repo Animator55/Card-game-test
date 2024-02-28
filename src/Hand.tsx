@@ -3,22 +3,23 @@ import { cardsD } from './assets/cardsList'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition, faDragon, faFire, faShield, faShoePrints } from '@fortawesome/free-solid-svg-icons'
 import { faHandFist } from '@fortawesome/free-solid-svg-icons/faHandFist'
+import { userType } from './vite-env'
 
 type Props = {
-  player: { _id: string }
-  enemy: { _id: string }
+  users:{player: userType, enemy: userType}
   currentCards: string[]
   subRound: { index: number, player: string }
   fight: boolean[]
   confirm: Function
   pickCard: Function
   selectedReal: string[]
+  jstAdCard: string
 }
 type router = {
   [key:string] : IconDefinition
 }
 
-export default function Hand({ confirm, player, enemy, currentCards, subRound, fight, selectedReal, pickCard }: Props) {
+export default function Hand({ confirm, users, currentCards, subRound, fight, selectedReal, pickCard, jstAdCard }: Props) {
   const [selected, setSelected] = React.useState<string[]>([])
 
   const clickCard = (card: string) => {
@@ -38,11 +39,13 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
   for (let i = 0; i < currentCards.length; i++) {
     if (!currentCards[i]
       || currentCards[i] === ""
-      || (selectedReal.includes(currentCards[i]) && fight[1] && subRound.player === enemy._id)) continue
+      || (selectedReal.includes(currentCards[i]) && fight[1] && subRound.player === users.enemy._id)) continue
 
     let selectedLocal = selectedReal.includes(currentCards[i]) || selected.includes(currentCards[i])
     let selectedIndex = selectedReal.indexOf(currentCards[i]) !== -1 ? selectedReal.indexOf(currentCards[i]) : selected.indexOf(currentCards[i])
     let className = selectedLocal ? fight[0] ? "card selected vanish" : "card selected" : "card"
+
+    className = jstAdCard !== "" && jstAdCard === currentCards[i] ? className + " spawn-vanish" : className
 
     let card = currentCards[i].split(".")[0]
     const iconSelector: router = {
@@ -55,7 +58,7 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
         className={className}
         onClick={() => { clickCard(currentCards[i]) }}
         key={Math.random()}
-        style={{ pointerEvents: subRound.player === player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}}
+        style={{ pointerEvents: subRound.player === users.player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}}
       >
         <h4>{cardsD[card].name}</h4>
         <div className='card-image' style={{ color: cardsD[card].image }}>
@@ -83,7 +86,7 @@ export default function Hand({ confirm, player, enemy, currentCards, subRound, f
 
   return <React.Fragment>
     {selected.length !== 0 && <button className="fixed-b-2" onClick={() => { confirm(selected); setSelected([]) }}></button>}
-    {(cardsAv.length < 5 && (subRound.player === player._id && !fight[1])
+    {(cardsAv.length < 5 && (subRound.player === users.player._id && !fight[1])
       || (fight[1] && !fight[0] && cardsAv.length === 0))
       && <button className="deck" onClick={() => {
         if (fight[1] && !fight[0] && cardsAv.length === 0) pickCard(true)

@@ -73,12 +73,6 @@ main {
   z-index: 1;
 }
 
-.card:not(.enemy):hover {
-  top: 0;
-  transition: top 300ms;
-  transform-origin: bottom;
-}
-
 .card.vanish {
   margin: auto 0;
   pointer-events: none;
@@ -471,4 +465,19 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 .player-life > .bar {
   background-color: rgb(233, 52, 52);
+}
+
+/***/
+
+.log-with{
+  position: fixed;
+  z-index: 4;
+  left: 1rem;
+  top: 25%;
+}
+.log-with-2{
+  position: fixed;
+  z-index: 4;
+  right: 1rem;
+  top: 25%;
 }
