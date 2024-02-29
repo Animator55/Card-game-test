@@ -481,3 +481,10 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   right: 1rem;
   top: 25%;
 }
+
+.accept-fight {
+  top: 0.5rem;
+  left: 0.5rem;
+  position: fixed;
+  z-index: 4;
+}
