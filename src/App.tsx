@@ -384,7 +384,7 @@ export default function App() {
 
   React.useEffect(()=>{
     if(users.player._id === "" || users.enemy._id === "") return 
-    if(subRound.player === "") setSubRound({...subRound, player: users.player._id > users.enemy._id ? users.player._id : users.enemy._id})
+    if(subRound.player === "") setSubRound({...subRound, player: users.player._id > users.enemy._id || activateIA ? users.player._id : users.enemy._id})
   }, [users])
 
   React.useEffect(()=>{
@@ -392,7 +392,7 @@ export default function App() {
     if(subRound.player === "") return
 
     if(checkCards(cards[round]) 
-      && checkCards(activateIA ? enemyCards[round] : cardsOpponent[round]) 
+      && checkCards(cardsOpponent[round]) 
       && selected.length === 0 
       && selectedEnemy.length === 0
     ){
@@ -460,6 +460,7 @@ export default function App() {
       <button onClick={()=>{connectToPeer("a")}}>a</button>
       <button onClick={()=>{connectToPeer("b")}}>b</button>
     </div>
+    <button className="accept-fight" onClick={()=>{setIA(!activateIA)}}>{activateIA ? "Activated IA" : "Desactivated IA"}</button>
     <PlayerLife/>
   </main>
 }
