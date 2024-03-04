@@ -4,7 +4,7 @@ import { cardsD } from "./assets/cardsList"
 import Peer, { DataConnection } from "peerjs"
 import PlayTable from "./PlayTable"
 
-type dataTransferMenu = {action: string, cardsTransfered: string[][]}
+type dataTransferMenu = {action: string, cardsTransfered?: string[][]}
 
 let conn: DataConnection | undefined = undefined
 let peer: Peer | undefined = undefined
@@ -98,7 +98,11 @@ export default function App() {
 
         let Data = data as dataTransferMenu
 
-        setCardsOpponent(Data.cardsTransfered)
+        if(Data.action === "fight") {
+          peer = undefined
+          bootbattle(false)
+        }
+        else setCardsOpponent(Data.cardsTransfered!)
       })
 
       conn.on('close', function () {
@@ -115,7 +119,6 @@ export default function App() {
 
   return menu ?
     <main>
-
       <section>
         <button onClick={()=>{setIA(!activateIA)}}>{activateIA ? "IA" : "no-IA"}</button>
         <button onClick={()=>{connection("a-login")}}>Log a</button>
@@ -134,6 +137,7 @@ export default function App() {
         <p style={{color: "white"}}>{cardsOpponent.join(", ")}</p>
         <button onClick={()=>{
           if(!peer || !conn)return
+          conn.send({action: "fight"})
           peer = undefined
           bootbattle(false)
         }}>Fight</button>

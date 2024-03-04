@@ -488,3 +488,12 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   position: fixed;
   z-index: 4;
 }
+
+.connecting-pop {
+  position: fixed;
+  z-index: 4;
+  left: 20%;
+  padding: 1rem;
+  background-color: gray;
+  border-radius: 5px;
+}

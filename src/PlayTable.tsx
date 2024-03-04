@@ -103,10 +103,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     const connectToPeer = (duel: string | undefined) => { // trys to connect to peers, if chat is undefined, func will loop
         if (conn !== undefined || peer === undefined || peer.id !== usersDef.player) return
 
-        function closeConn() {
-            console.log('closeConn')
-            conn = undefined
-        }
+        function closeConn() {conn = undefined}
 
         if (duel !== undefined) {
             console.log(peer, conn)
@@ -117,13 +114,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             conn.on('close', closeConn)
             setUsers({ ...users, enemy: { ...users.enemy, _id: duel } })
         }
-        // else for (const key in chats) {
-        //   if (key !== peer.id) {
-        //     console.log('Trying to connect to ' + chats[key].name)
-        //     conn = peer.connect(chats[key])
-        //     conn.on('close', closeConn)
-        //   }
-        // }
     }
     function connection(id: string): undefined | string { //create session
         // if(!checkValidId(id, password)) return "invalid"
@@ -141,6 +131,8 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
                     break
                 default:
                     conn = undefined
+                    if(peer) peer.disconnect()
+                    peer = undefined
                     console.log('an error happened')
             }
             return false;
@@ -148,17 +140,13 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         peer.on('open', function (id: string) {
             if (peer === undefined || peer.id === undefined) return
             console.log('Hi player ' + id)
-            // connectToPeer(undefined)
         })
         if (conn !== undefined) return
 
         peer.on("connection", function (conn: DataConnection | undefined) {
             if (!conn) return
 
-            console.log("connected to "+ conn.peer)
-
             conn.on("data", function (data) { //RECIEVED DATA
-                console.log("sended to you " + data)
                 if (!peer || !conn) return
 
                 let Data = data as dataTransfer
@@ -174,7 +162,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
 
             conn.on('close', function () {
                 if (!conn) return
-                console.log('connection was closed by ' + conn.peer)
                 conn.close()
                 conn = undefined
             })
@@ -403,12 +390,16 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     else if (subRound.player === users.enemy._id) dataTurn = "1"
 
     React.useEffect(()=>{
-        console.log("effect")
-        if(!activateIA) {
-            if(peer === undefined || peer.id !== usersDef.player) connection(usersDef.player)
-        }
+        if(!activateIA) if(peer === undefined || peer.id !== usersDef.player) connection(usersDef.player)
     })
+
+    React.useEffect(()=>{
+        setTimeout(()=>{
+            if(!activateIA) connectToPeer(usersDef.enemy)
+        }, 5000)
+    }, [])
     
+    let checkConnections = !activateIA && peer === undefined
 
     return <main data-turn={dataTurn}>
         <EnemyLife />
@@ -424,7 +415,14 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             pickCard={pickCard}
             jstAdCard={justAddedCardPlayer}
         />}
-        <button onClick={()=>{connectToPeer(usersDef.enemy)}}>conn</button>
+        {checkConnections && <div className="connecting-pop"> 
+            <h2>Connecting to Server...</h2>
+            <button onClick={()=>{connection(usersDef.player)}}>Reconnect</button>
+        </div>}
+        {peer !== undefined && conn === undefined && <div className="connecting-pop"> 
+            <h2>Connecting to Peer...</h2>
+            <button onClick={()=>{connectToPeer(usersDef.enemy)}}>Reconnect</button>
+        </div>}
         <PlayerLife />
     </main>
 }
