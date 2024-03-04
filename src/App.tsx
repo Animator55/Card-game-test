@@ -113,8 +113,9 @@ export default function App() {
 
   /// EFFECTS
 
-  return <main>
-    {menu ?
+  return menu ?
+    <main>
+
       <section>
         <button onClick={()=>{setIA(!activateIA)}}>{activateIA ? "IA" : "no-IA"}</button>
         <button onClick={()=>{connection("a-login")}}>Log a</button>
@@ -133,19 +134,17 @@ export default function App() {
         <p style={{color: "white"}}>{cardsOpponent.join(", ")}</p>
         <button onClick={()=>{
           if(!peer || !conn)return
-          conn.close()
-          conn = undefined
           peer = undefined
           bootbattle(false)
         }}>Fight</button>
       </section>
-      :
-      <PlayTable
-        usersDef={users}
-        cardsDefault={cards}
-        cardsOpponentDefault={cardsOpponent}
-        activateIA={activateIA}
-      />
-    }
-  </main>
+    </main>
+    :
+    <PlayTable
+      usersDef={users}
+      cardsDefault={cards}
+      cardsOpponentDefault={cardsOpponent}
+      activateIA={activateIA}
+    />
+  
 }

@@ -101,7 +101,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
 
 
     const connectToPeer = (duel: string | undefined) => { // trys to connect to peers, if chat is undefined, func will loop
-        if (conn !== undefined || peer === undefined) return
+        if (conn !== undefined || peer === undefined || peer.id !== usersDef.player) return
 
         function closeConn() {
             console.log('closeConn')
@@ -109,6 +109,8 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         }
 
         if (duel !== undefined) {
+            console.log(peer, conn)
+
             console.log('Connecting to ' + duel)
             if (!peer.connect) return
             conn = peer.connect(duel)
@@ -145,14 +147,15 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         })
         peer.on('open', function (id: string) {
             if (peer === undefined || peer.id === undefined) return
-            console.log('Hi ' + id)
-            setUsers({ ...users, player: { ...users.player, _id: peer.id } })
+            console.log('Hi player ' + id)
             // connectToPeer(undefined)
         })
         if (conn !== undefined) return
 
         peer.on("connection", function (conn: DataConnection | undefined) {
             if (!conn) return
+
+            console.log("connected to "+ conn.peer)
 
             conn.on("data", function (data) { //RECIEVED DATA
                 console.log("sended to you " + data)
@@ -181,7 +184,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
 
     const sendSelected = () => {
         if (!peer || !conn) return
-
         conn.send({ action: "attack", cards: selected })
         setSubRound({ index: subRound.index, player: users.enemy._id })
     }
@@ -399,11 +401,14 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     
     if (subRound.player === users.player._id) dataTurn = "0"
     else if (subRound.player === users.enemy._id) dataTurn = "1"
+
+    React.useEffect(()=>{
+        console.log("effect")
+        if(!activateIA) {
+            if(peer === undefined || peer.id !== usersDef.player) connection(usersDef.player)
+        }
+    })
     
-    if(!activateIA) {
-        if(peer === undefined) connection(usersDef.player)
-        else if(conn === undefined) connectToPeer(usersDef.enemy)
-    }
 
     return <main data-turn={dataTurn}>
         <EnemyLife />
@@ -419,6 +424,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             pickCard={pickCard}
             jstAdCard={justAddedCardPlayer}
         />}
+        <button onClick={()=>{connectToPeer(usersDef.enemy)}}>conn</button>
         <PlayerLife />
     </main>
 }
