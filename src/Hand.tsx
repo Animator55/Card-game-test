@@ -1,9 +1,6 @@
 import React from 'react'
-import { cardsD } from './assets/cardsList'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition, faDragon, faFire, faShield, faShoePrints } from '@fortawesome/free-solid-svg-icons'
-import { faHandFist } from '@fortawesome/free-solid-svg-icons/faHandFist'
 import { userType } from './vite-env'
+import { Card } from './components/Card'
 
 type Props = {
   users:{player: userType, enemy: userType}
@@ -14,9 +11,6 @@ type Props = {
   pickCard: Function
   selectedReal: string[]
   jstAdCard: string
-}
-type router = {
-  [key:string] : IconDefinition
 }
 
 export default function Hand({ confirm, users, currentCards, subRound, fight, selectedReal, pickCard, jstAdCard }: Props) {
@@ -48,37 +42,17 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
     className = jstAdCard !== "" && jstAdCard === currentCards[i] ? className + " spawn-vanish" : className
 
     let card = currentCards[i].split(".")[0]
-    const iconSelector: router = {
-      "Attack": faFire,
-      "Invocation": faDragon,
-      "Defense":  faShield
-    }
+
+    let style = { pointerEvents: subRound.player === users.player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}
+    const click = () => { clickCard(currentCards[i]) }
+  
     jsx.push(
-      <div
+      <Card
+        card={card}
         className={className}
-        onClick={() => { clickCard(currentCards[i]) }}
-        key={Math.random()}
-        style={{ pointerEvents: subRound.player === users.player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}}
-      >
-        <h4>{cardsD[card].name}</h4>
-        <div className='card-image' style={{ color: cardsD[card].image }}>
-          <FontAwesomeIcon icon={iconSelector[cardsD[card].type]}/>
-        </div>
-        <div className='d-flex'>
-          <div className='d-flex'>
-            <h5>{cardsD[card].strength}</h5>
-            <FontAwesomeIcon icon={faHandFist} />
-          </div>
-          <div className='d-flex'>
-            <h5>{cardsD[card].defense}</h5>
-            <FontAwesomeIcon icon={faShield} />
-          </div>
-          <div className='d-flex'>
-            <h5>{cardsD[card].speed}</h5>
-            <FontAwesomeIcon icon={faShoePrints} />
-          </div>
-        </div>
-      </div>
+        clickCard={click}
+        style={style}
+      />
     )
   }
 

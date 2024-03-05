@@ -497,3 +497,19 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   background-color: gray;
   border-radius: 5px;
 }
+
+
+/****/
+
+
+.show-hand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scale: 0.5;
+}
+
+.show-hand > div {
+  display: flex;
+  gap: 0.3rem;
+}

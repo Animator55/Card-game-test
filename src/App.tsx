@@ -3,18 +3,19 @@ import './assets/App.css'
 import { cardsD } from "./assets/cardsList"
 import Peer, { DataConnection } from "peerjs"
 import PlayTable from "./PlayTable"
+import { Card } from "./components/Card"
 
-type dataTransferMenu = {action: string, cardsTransfered?: string[][]}
+type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
 let conn: DataConnection | undefined = undefined
 let peer: Peer | undefined = undefined
 
-const generatedTalesCards = (cards: string[][])=>{
+const generatedTalesCards = (cards: string[][]) => {
   let newCards = []
 
-  for(let i=0; i < cards.length; i++) {
-    let stack = cards[i].map((card, i)=>{
-      return card + "."+ Math.floor(Math.random()*100000)
+  for (let i = 0; i < cards.length; i++) {
+    let stack = cards[i].map((card) => {
+      return card + "." + Math.floor(Math.random() * 100000)
       // return card + "."+ i
     })
     newCards.push(stack)
@@ -39,13 +40,13 @@ export default function App() {
   const [cards, setCards] = React.useState<string[][]>(cardsP1)
   const [cardsOpponent, setCardsOpponent] = React.useState<string[][]>([])
 
-  const [users, setUsers] = React.useState<{player: string, enemy: string}>({
+  const [users, setUsers] = React.useState<{ player: string, enemy: string }>({
     player: "",
-    enemy:  ""
+    enemy: ""
   })
   /// CONNECTIONS 
 
-  
+
   const connectToPeer = (duel: string | undefined) => { // trys to connect to peers, if chat is undefined, func will loop
     if (conn !== undefined || peer === undefined) return
 
@@ -56,10 +57,10 @@ export default function App() {
 
     if (duel !== undefined) {
       console.log('Connecting to ' + duel)
-      if(!peer.connect) return
+      if (!peer.connect) return
       conn = peer.connect(duel)
       conn.on('close', closeConn)
-      setUsers({...users, enemy: duel.split("-")[0]})
+      setUsers({ ...users, enemy: duel.split("-")[0] })
     }
   }
   function connection(id: string): undefined | string { //create session
@@ -85,20 +86,20 @@ export default function App() {
     peer.on('open', function (id: string) {
       if (peer === undefined || peer.id === undefined) return
       console.log('Hi ' + id)
-      setUsers({...users, player: peer.id.split("-")[0]})
+      setUsers({ ...users, player: peer.id.split("-")[0] })
     })
     if (conn !== undefined) return
 
     peer.on("connection", function (conn: DataConnection | undefined) {
-      if(!conn) return
+      if (!conn) return
 
       conn.on("data", function (data) { //RECIEVED DATA
         console.log("sended to you " + data)
-        if(!peer ||!conn) return
+        if (!peer || !conn) return
 
         let Data = data as dataTransferMenu
 
-        if(Data.action === "fight") {
+        if (Data.action === "fight") {
           peer = undefined
           bootbattle(false)
         }
@@ -106,13 +107,64 @@ export default function App() {
       })
 
       conn.on('close', function () {
-        if(!conn) return
+        if (!conn) return
         console.log('connection was closed by ' + conn.peer)
         conn.close()
         conn = undefined
       })
-      
+
     });
+  }
+
+  /// COMPONENTS
+
+  const HandEditor = () => {
+    return <section>
+      {cards.map((round, i) => {
+        return <div key={i + "hand-editor-round"}>
+          {round.map((card) => {
+            let card_id = card.split(".")[0]
+            return <Card
+              card={card_id}
+              className={"card"}
+              clickCard={() => { console.log("a") }}
+              style={{}}
+            />
+          })}
+        </div>
+      })}
+    </section>
+  }
+
+  const CardsList = () => {
+    return <section>
+      {Object.values(cardsD).map((card) => {
+        return <Card
+          card={card._id}
+          className={"card"}
+          clickCard={() => { console.log("a") }}
+          style={{}}
+        />
+      })}
+    </section>
+  }
+
+  const ShowCards = ({ LocalCards }: { LocalCards: string[][] }) => {
+    return <section className="show-hand">
+      {LocalCards.map((round, i) => {
+        return <div key={i + "hand-editor-round"}>
+          {round.map((card) => {
+            let card_id = card.split(".")[0]
+            return <Card
+              card={card_id}
+              className={"card mini"}
+              clickCard={() => { console.log("a") }}
+              style={{}}
+            />
+          })}
+        </div>
+      })}
+    </section>
   }
 
   /// EFFECTS
@@ -120,24 +172,24 @@ export default function App() {
   return menu ?
     <main>
       <section>
-        <button onClick={()=>{setIA(!activateIA)}}>{activateIA ? "IA" : "no-IA"}</button>
-        <button onClick={()=>{connection("a-login")}}>Log a</button>
-        <button onClick={()=>{connection("b-login")}}>Log b</button>
-        {peer !== undefined && 
+        <button onClick={() => { setIA(!activateIA) }}>{activateIA ? "IA" : "no-IA"}</button>
+        <button onClick={() => { connection("a-login") }}>Log a</button>
+        <button onClick={() => { connection("b-login") }}>Log b</button>
+        {peer !== undefined &&
           <>
-            <button onClick={()=>{connectToPeer("a-login")}}>connect a</button>
-            <button onClick={()=>{connectToPeer("b-login")}}>connect b</button>
+            <button onClick={() => { connectToPeer("a-login") }}>connect a</button>
+            <button onClick={() => { connectToPeer("b-login") }}>connect b</button>
           </>
         }
         <hr></hr>
-        {users.enemy !== "" &&<button onClick={()=>{if(conn) conn.send({cardsTransfered: cards})}}>send cards</button>}
+        {users.enemy !== "" && conn?.peerConnection.connectionState === "connected" && <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
         <hr></hr>
-        <p style={{color: "white"}}>{cards.join(", ")}</p>
+        <ShowCards LocalCards={cards}/>
         <hr></hr>
-        <p style={{color: "white"}}>{cardsOpponent.join(", ")}</p>
-        <button onClick={()=>{
-          if(!peer || !conn)return
-          conn.send({action: "fight"})
+        <ShowCards LocalCards={cardsOpponent}/>
+        <button onClick={() => {
+          if (!peer || !conn) return
+          conn.send({ action: "fight" })
           peer = undefined
           bootbattle(false)
         }}>Fight</button>
@@ -150,5 +202,5 @@ export default function App() {
       cardsOpponentDefault={cardsOpponent}
       activateIA={activateIA}
     />
-  
+
 }
