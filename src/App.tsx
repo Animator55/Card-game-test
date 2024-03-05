@@ -168,6 +168,9 @@ export default function App() {
   }
 
   /// EFFECTS
+  React.useEffect(()=>{
+    if(conn) conn?.peerConnection.connectionState
+  })
 
   return menu ?
     <main>
@@ -182,9 +185,7 @@ export default function App() {
           </>
         }
         <hr></hr>
-        {users.enemy !== "" && conn?.peerConnection.connectionState === "connected" && <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
-        <hr></hr>
-        <ShowCards LocalCards={cards}/>
+        {users.enemy !== "" && (conn?.peerConnection.connectionState === "connected" || conn?.peerConnection.connectionState === "new") && <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
         <hr></hr>
         <ShowCards LocalCards={cardsOpponent}/>
         <button onClick={() => {
