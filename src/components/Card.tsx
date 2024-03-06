@@ -1,5 +1,5 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
-import { faDragon, faFire, faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
+import { faDragon, faFire, faFlask, faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { cardsD } from "../assets/cardsList"
 
@@ -15,12 +15,12 @@ export const Card = ({className, clickCard, style, card}:Props) => {
     const iconSelector: router = {
         "Attack": faFire,
         "Invocation": faDragon,
-        "Defense": faShield
+        "Defense": faShield,
+        "Support": faFlask
     }
     return <div
         className={className}
         onClick={()=>{clickCard()}}
-        key={Math.random()}
         style={style}
     >
         <h4>{cardsD[card].name}</h4>

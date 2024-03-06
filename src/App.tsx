@@ -1,9 +1,10 @@
 import React from "react"
 import './assets/App.css'
-import { cardsD } from "./assets/cardsList"
 import Peer, { DataConnection } from "peerjs"
 import PlayTable from "./PlayTable"
-import { Card } from "./components/Card"
+import Menu from "./components/Menu"
+import Auth from "./components/Auth"
+import HandEditor from "./components/HandEditor"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -34,11 +35,17 @@ let cardsP1 = generatedTalesCards([
 //   ["0001", "0005", "0002", "0006", "0000"],
 // ])
 
+const defaultUsers: string[] = []
+
 export default function App() {
   const [activateIA, setIA] = React.useState(false)
   const [menu, bootbattle] = React.useState(true)
   const [cards, setCards] = React.useState<string[][]>(cardsP1)
   const [cardsOpponent, setCardsOpponent] = React.useState<string[][]>([])
+  const [selectedPlayer, setPlayer] = React.useState<string | undefined>()
+  const [page, setPage] = React.useState("login")
+
+  const [cachedUsers, setCachedUsers] = React.useState<string[]>(defaultUsers)
 
   const [users, setUsers] = React.useState<{ player: string, enemy: string }>({
     player: "",
@@ -118,53 +125,53 @@ export default function App() {
 
   /// COMPONENTS
 
-  const HandEditor = () => {
-    return <section>
-      {cards.map((round, i) => {
-        return <div key={i + "hand-editor-round"}>
-          {round.map((card) => {
-            let card_id = card.split(".")[0]
-            return <Card
-              card={card_id}
-              className={"card"}
-              clickCard={() => { console.log("a") }}
-              style={{}}
-            />
-          })}
-        </div>
+
+  const UsersList = ()=>{
+    return <ul>
+      <button onClick={(e)=>{
+        let input = e.currentTarget.previousElementSibling as HTMLInputElement
+        setCachedUsers([...cachedUsers, input.value])
+      }}></button>
+      {Object.values(cachedUsers).map((el, i)=>{
+        return <button
+          key={"user-li" + el + i}
+          onClick={()=>{setPlayer(el); connectToPeer(el+ "-login")}}
+        ></button>
       })}
+    </ul>
+  }
+
+  const ShowPlayer = ()=>{
+    let checks = users.enemy !== "" && 
+    (conn?.peerConnection.connectionState === "connected" 
+    || conn?.peerConnection.connectionState === "new")
+    return <section>
+      <h2>{selectedPlayer}</h2>
+        {checks && 
+        <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
+        
+        {checks && cardsOpponent !== undefined && <button onClick={() => {
+          if (!peer || !conn) return
+          conn.send({ action: "fight" })
+          peer = undefined
+          bootbattle(false)
+        }}>Fight</button>}
     </section>
   }
 
-  const CardsList = () => {
-    return <section>
-      {Object.values(cardsD).map((card) => {
-        return <Card
-          card={card._id}
-          className={"card"}
-          clickCard={() => { console.log("a") }}
-          style={{}}
-        />
-      })}
-    </section>
-  }
+  // pages
 
-  const ShowCards = ({ LocalCards }: { LocalCards: string[][] }) => {
-    return <section className="show-hand">
-      {LocalCards.map((round, i) => {
-        return <div key={i + "hand-editor-round"}>
-          {round.map((card) => {
-            let card_id = card.split(".")[0]
-            return <Card
-              card={card_id}
-              className={"card mini"}
-              clickCard={() => { console.log("a") }}
-              style={{}}
-            />
-          })}
-        </div>
-      })}
-    </section>
+  const pages: {[key: string]: any} = {
+    "login": <Auth confirm={(val: string)=>{connection(`${val}-login`); setPage("menu")}}/>,
+    "menu": <Menu setPage={setPage}/>,
+    "userList":  <>
+      {selectedPlayer !== undefined ? 
+        <ShowPlayer/>
+        :
+        <UsersList/>
+      }
+    </>,
+    "handEdit": <HandEditor setPage={setPage} cardsDef={cards} setCardsDef={setCards}/>,
   }
 
   /// EFFECTS
@@ -176,24 +183,17 @@ export default function App() {
     <main>
       <section>
         <button onClick={() => { setIA(!activateIA) }}>{activateIA ? "IA" : "no-IA"}</button>
-        <button onClick={() => { connection("a-login") }}>Log a</button>
+        {/* <button onClick={() => { connection("a-login") }}>Log a</button>
         <button onClick={() => { connection("b-login") }}>Log b</button>
         {peer !== undefined &&
           <>
             <button onClick={() => { connectToPeer("a-login") }}>connect a</button>
             <button onClick={() => { connectToPeer("b-login") }}>connect b</button>
           </>
-        }
-        <hr></hr>
-        {users.enemy !== "" && (conn?.peerConnection.connectionState === "connected" || conn?.peerConnection.connectionState === "new") && <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
-        <hr></hr>
-        <ShowCards LocalCards={cardsOpponent}/>
-        <button onClick={() => {
-          if (!peer || !conn) return
-          conn.send({ action: "fight" })
-          peer = undefined
-          bootbattle(false)
-        }}>Fight</button>
+        } */}
+        {pages[page]}
+        {/* <hr></hr>
+        <hr></hr> */}
       </section>
     </main>
     :
