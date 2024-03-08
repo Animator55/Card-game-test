@@ -24,10 +24,11 @@ export default function HandEditor ({setPage, cardsDef, setCardsDef}: Props) {
             className={"card"}
             clickCard={() => { 
                 let newRound = cards[selected.round].map(el=>{
-                    if(el === selected._id) return card._id + Math.floor(Math.random() * 100000)
+                    if(el === selected._id) return card._id +"." + Math.floor(Math.random() * 100000)
                     else return el
                 })
                 setCards(Object.values({...cards, [selected.round]: newRound}) as string[][]) 
+                setSelected(undefined)
             }}
             style={{}}
             />

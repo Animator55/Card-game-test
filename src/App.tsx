@@ -5,6 +5,7 @@ import PlayTable from "./PlayTable"
 import Menu from "./components/Menu"
 import Auth from "./components/Auth"
 import HandEditor from "./components/HandEditor"
+import { cardsD } from "./assets/cardsList"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -35,6 +36,20 @@ let cardsP1 = generatedTalesCards([
 //   ["0001", "0005", "0002", "0006", "0000"],
 // ])
 
+const generateHand = ()=>{
+  let hand = []
+
+  let cards = Object.keys(cardsD)
+  for(let i=0; i<3; i++) {
+    let round = []
+    for(let j=0; j<5; j++) {
+      round.push(cards[Math.floor(Math.random() * cards.length)]+ "." + Math.floor(Math.random() * 100000))
+    }
+    hand.push(round)
+  }
+  return hand
+}
+
 const defaultUsers: string[] = []
 
 export default function App() {
@@ -51,6 +66,16 @@ export default function App() {
     player: "",
     enemy: ""
   })
+
+  const singlePlayer = ()=>{
+    setUsers({...users, enemy: "IA"})
+    let IACards = generateHand()
+
+    setCardsOpponent(IACards)
+    setIA(true)
+    bootbattle(false)
+  }
+
   /// CONNECTIONS 
 
 
@@ -128,15 +153,16 @@ export default function App() {
 
   const UsersList = ()=>{
     return <ul>
+      <input placeholder="username"/>
       <button onClick={(e)=>{
         let input = e.currentTarget.previousElementSibling as HTMLInputElement
         setCachedUsers([...cachedUsers, input.value])
-      }}></button>
+      }}>Add user</button>
       {Object.values(cachedUsers).map((el, i)=>{
         return <button
           key={"user-li" + el + i}
           onClick={()=>{setPlayer(el); connectToPeer(el+ "-login")}}
-        ></button>
+        >{el}</button>
       })}
     </ul>
   }
@@ -162,8 +188,8 @@ export default function App() {
   // pages
 
   const pages: {[key: string]: any} = {
-    "login": <Auth confirm={(val: string)=>{connection(`${val}-login`); setPage("menu")}}/>,
-    "menu": <Menu setPage={setPage}/>,
+    "login": <Auth confirm={(val: string)=>{connection(`${val}-login`)}}/>,
+    "menu": <Menu setPage={setPage} singlePlayer={singlePlayer}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
         <ShowPlayer/>
@@ -175,25 +201,15 @@ export default function App() {
   }
 
   /// EFFECTS
+
   React.useEffect(()=>{
-    if(conn) conn?.peerConnection.connectionState
+    if(page === "login" && peer && users.player !== "" && peer.open)  setPage("menu")
   })
 
   return menu ?
     <main>
       <section>
-        <button onClick={() => { setIA(!activateIA) }}>{activateIA ? "IA" : "no-IA"}</button>
-        {/* <button onClick={() => { connection("a-login") }}>Log a</button>
-        <button onClick={() => { connection("b-login") }}>Log b</button>
-        {peer !== undefined &&
-          <>
-            <button onClick={() => { connectToPeer("a-login") }}>connect a</button>
-            <button onClick={() => { connectToPeer("b-login") }}>connect b</button>
-          </>
-        } */}
         {pages[page]}
-        {/* <hr></hr>
-        <hr></hr> */}
       </section>
     </main>
     :

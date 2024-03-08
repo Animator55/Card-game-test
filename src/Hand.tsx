@@ -48,6 +48,7 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
   
     jsx.push(
       <Card
+        key={Math.random()}
         card={card}
         className={className}
         clickCard={click}

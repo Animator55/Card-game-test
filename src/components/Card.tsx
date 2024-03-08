@@ -8,10 +8,10 @@ type router = {
 }
 
 type Props = {
-    className: string, clickCard: Function, style: any, card: string
+    className: string, clickCard: Function, style: any, card: string, id?: string, dataDamage?:string
 }
 
-export const Card = ({className, clickCard, style, card}:Props) => {
+export const Card = ({className, clickCard, style, card, id, dataDamage}:Props) => {
     const iconSelector: router = {
         "Attack": faFire,
         "Invocation": faDragon,
@@ -19,6 +19,8 @@ export const Card = ({className, clickCard, style, card}:Props) => {
         "Support": faFlask
     }
     return <div
+        id={id ? id : ""}
+        data-damage={dataDamage ? dataDamage : ""}
         className={className}
         onClick={()=>{clickCard()}}
         style={style}
@@ -33,7 +35,7 @@ export const Card = ({className, clickCard, style, card}:Props) => {
                 <FontAwesomeIcon icon={faHandFist} />
             </div>
             <div className='d-flex'>
-                <h5>{cardsD[card].defense}</h5>
+                <h5 className="defense-stat" data-defense={cardsD[card].defense}></h5>
                 <FontAwesomeIcon icon={faShield} />
             </div>
             <div className='d-flex'>

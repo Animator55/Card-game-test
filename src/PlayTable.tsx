@@ -1,9 +1,6 @@
 import React from "react"
 import './assets/App.css'
 import Hand from "./Hand"
-import { cardsD } from "./assets/cardsList"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { IconDefinition, faDragon, faFire, faHandFist, faShield, faShoePrints } from "@fortawesome/free-solid-svg-icons"
 import { calculateFight } from "./logic/calculateFight"
 import { renderFight } from "./logic/renderFight"
 import { fadeOutTable } from "./logic/fadeOutTable"
@@ -12,11 +9,7 @@ import { generateRandomEnemyCards } from "./logic/generateRandCard"
 import { checkCards } from "./logic/checkCards"
 import { userType } from "./vite-env"
 import Peer, { DataConnection } from "peerjs"
-
-
-type router = {
-    [key: string]: IconDefinition
-}
+import { Card } from "./components/Card"
 
 type dataTransfer = { action: string, cards: string[] | string[][], allCards?: string[][] }
 
@@ -261,42 +254,20 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     }
 
     const RenderTable = () => {
-        const iconSelector: router = {
-            "Attack": faFire,
-            "Invocation": faDragon,
-            "Defense": faShield
-        }
-
         return <section className="table">
             <div className="enemy-table">
                 {fight[1] && selectedEnemy.length !== 0 && selectedEnemy.map(card => {
                     if (!card || card === "") return
                     let card_id = card.split(".")[0]
-                    return <div
-                        className="card card-in-table enemy spawn-vanish hide"
-                        id={card}
-                        key={card + "intable-enemy"}
-                        data-damage={""}
-                    >
-                        <h4>{cardsD[card_id].name}</h4>
-                        <div className='card-image' style={{ color: cardsD[card_id].image }}>
-                            <FontAwesomeIcon icon={iconSelector[cardsD[card_id].type]} />
-                        </div>
-                        <div className='d-flex'>
-                            <div className='d-flex'>
-                                <h5>{cardsD[card_id].strength}</h5>
-                                <FontAwesomeIcon icon={faHandFist} />
-                            </div>
-                            <div className='d-flex'>
-                                <h5 className="defense-stat" data-defense={cardsD[card_id].defense}></h5>
-                                <FontAwesomeIcon icon={faShield} />
-                            </div>
-                            <div className='d-flex'>
-                                <h5>{cardsD[card_id].speed}</h5>
-                                <FontAwesomeIcon icon={faShoePrints} />
-                            </div>
-                        </div>
-                    </div>
+                    return <Card
+                      key={card + "intable-enemy"}
+                      card={card_id}
+                      className={"card card-in-table enemy spawn-vanish hide"}
+                      clickCard={()=>{}}
+                      style={{}}
+                      id={card}
+                      dataDamage={""}
+                    />
                 })}
             </div>
             <div className="player-table">
@@ -304,31 +275,15 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
                     if (!card || card === "") return
 
                     let card_id = card.split(".")[0]
-                    return <div
-                        className="card card-in-table spawn-vanish hide"
-                        id={card}
+                    return <Card
                         key={card + "intable"}
-                        data-damage={""}
-                    >
-                        <h4>{cardsD[card_id].name}</h4>
-                        <div className='card-image' style={{ color: cardsD[card_id].image }}>
-                            <FontAwesomeIcon icon={iconSelector[cardsD[card_id].type]} />
-                        </div>
-                        <div className='d-flex'>
-                            <div className='d-flex'>
-                                <h5>{cardsD[card_id].strength}</h5>
-                                <FontAwesomeIcon icon={faHandFist} />
-                            </div>
-                            <div className='d-flex'>
-                                <h5 className="defense-stat" data-defense={cardsD[card_id].defense}></h5>
-                                <FontAwesomeIcon icon={faShield} />
-                            </div>
-                            <div className='d-flex'>
-                                <h5>{cardsD[card_id].speed}</h5>
-                                <FontAwesomeIcon icon={faShoePrints} />
-                            </div>
-                        </div>
-                    </div>
+                        card={card_id}
+                        className={"card card-in-table spawn-vanish hide"}
+                        clickCard={()=>{}}
+                        style={{}}
+                        id={card}
+                        dataDamage={""}
+                    />
                 })}
             </div>
         </section>
