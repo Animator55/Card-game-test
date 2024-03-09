@@ -10,6 +10,10 @@ main {
   overflow: hidden;
 }
 
+input, button {
+  border: none;
+}
+
 .d-flex {
   display: flex;
 }
@@ -512,4 +516,116 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .show-hand > div {
   display: flex;
   gap: 0.3rem;
+}
+
+
+/***/
+
+.auth-screen {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  padding: 0 10%;
+}
+
+.auth-screen h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 3rem auto 3rem;
+}
+.auth-screen input{
+  background-color: #2b2525;
+  color: white;
+  border-radius: 5px;
+  font-size: 1.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+.auth-screen button{
+  background-color: #1170ff;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  padding: 1.5rem;
+  margin: auto 0 1rem;
+}
+
+/***/
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  padding: 0 10%;
+}
+
+.menu > .title {
+  color: white;
+  text-align: center;
+  margin: 2rem 0 1rem;
+  font-size: 1.8rem;
+}
+
+.menu hr {
+  width: 100%;
+}
+
+.menu > button {
+  background-color: #1170ff;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  padding: 1.5rem;
+  margin: 1rem;
+}
+
+
+/***/
+
+.user-list{
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  padding: 0 5%;
+}
+
+.user-list > .search {
+  display: flex;
+  width: 100%;
+  margin: 1rem 0;
+  gap: 0.5rem;
+}
+.user-list > .search > input{
+  background-color: #2b2525;
+  color: white;
+  width: 100%;
+  padding: 0rem;
+  padding: .5rem;
+  font-size: large;
+  border-radius: 5px;
+}
+.user-list > .search > button {
+  background-color: #1170ff;
+  color: white;
+  font-size: .9rem;
+  border-radius: 5px;
+  padding: .8rem;
+  font-size: large;
+}
+
+/***/
+
+.user-list > ul {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0.5rem;
+}
+.user-list > ul > button {
+  border: 3px solid #1170ff;
+  background-color: transparent;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  padding: 1.2rem;
 }

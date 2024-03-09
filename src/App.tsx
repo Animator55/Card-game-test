@@ -6,6 +6,8 @@ import Menu from "./components/Menu"
 import Auth from "./components/Auth"
 import HandEditor from "./components/HandEditor"
 import { cardsD } from "./assets/cardsList"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -152,19 +154,25 @@ export default function App() {
 
 
   const UsersList = ()=>{
-    return <ul>
-      <input placeholder="username"/>
-      <button onClick={(e)=>{
-        let input = e.currentTarget.previousElementSibling as HTMLInputElement
-        setCachedUsers([...cachedUsers, input.value])
-      }}>Add user</button>
-      {Object.values(cachedUsers).map((el, i)=>{
-        return <button
-          key={"user-li" + el + i}
-          onClick={()=>{setPlayer(el); connectToPeer(el+ "-login")}}
-        >{el}</button>
-      })}
-    </ul>
+    return <section className="user-list">
+        <div className="search">
+          <input placeholder="username"/>
+          <button onClick={(e)=>{
+            let input = e.currentTarget.previousElementSibling as HTMLInputElement
+            if(input.value === "") return
+            setCachedUsers([...cachedUsers, input.value])
+          }}><FontAwesomeIcon icon={faMagnifyingGlass}/></button>
+        </div>
+
+        <ul>
+          {Object.values(cachedUsers).map((el, i)=>{
+            return <button
+              key={"user-li" + el + i}
+              onClick={()=>{setPlayer(el); connectToPeer(el+ "-login")}}
+            >{el}</button>
+          })}
+        </ul>
+    </section>
   }
 
   const ShowPlayer = ()=>{
@@ -208,9 +216,7 @@ export default function App() {
 
   return menu ?
     <main>
-      <section>
-        {pages[page]}
-      </section>
+      {pages[page]}
     </main>
     :
     <PlayTable
