@@ -38,21 +38,24 @@ export default function HandEditor ({setPage, cardsDef, setCardsDef}: Props) {
 
     return <section>
         {!selected ? <>
-            <button onClick={()=>{setCardsDef(cards); setPage("menu")}}><FontAwesomeIcon icon={faArrowLeft}/></button>
+            <button className="return-button" onClick={()=>{setCardsDef(cards); setPage("menu")}}><FontAwesomeIcon icon={faArrowLeft}/></button>
             <div>
                 {cards.map((round, i) => {
-                    return <div key={i + "hand-editor-round"} style={{display: "flex"}}>
-                    {round.map((card) => {
-                        let card_id = card.split(".")[0]
-                        return <Card
-                        card={card_id}
-                        key={Math.random()}
-                        className={"card"}
-                        clickCard={() => { setSelected({round: i, _id: card}) }}
-                        style={{}}
-                        />
-                    })}
-                    </div>
+                    return <React.Fragment key={Math.random()}>
+                        <h4 className="round-label">Round {i+1}</h4>
+                        <div className="hand-editable" key={i + "hand-editor-round"}>
+                            {round.map((card) => {
+                                let card_id = card.split(".")[0]
+                                return <Card
+                                card={card_id}
+                                key={Math.random()}
+                                className={"card editable"}
+                                clickCard={() => { setSelected({round: i, _id: card}) }}
+                                style={{}}
+                                />
+                            })}
+                        </div>
+                    </React.Fragment>
                 })}
             </div>
         </>

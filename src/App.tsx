@@ -55,6 +55,7 @@ const generateHand = ()=>{
 const defaultUsers: string[] = []
 
 export default function App() {
+  const [alert, activateAlert] = React.useState("")
   const [activateIA, setIA] = React.useState(false)
   const [menu, bootbattle] = React.useState(true)
   const [cards, setCards] = React.useState<string[][]>(cardsP1)
@@ -107,13 +108,16 @@ export default function App() {
         case 'unavailable-id':
           console.log(id + ' is taken')
           peer = undefined
+          activateAlert("The name " + id + " is taken, please use other")
           break
         case 'peer-unavailable':
           console.log('user offline')
+          activateAlert("User Offline")
           break
         default:
           conn = undefined
-          console.log('an error happened')
+          console.log('an error happened', peer)
+          activateAlert("A connection error happened, please retry")
       }
       return false;
     })
@@ -196,7 +200,7 @@ export default function App() {
   // pages
 
   const pages: {[key: string]: any} = {
-    "login": <Auth confirm={(val: string)=>{connection(`${val}-login`)}}/>,
+    "login": <Auth loginState={alert} confirm={(val: string)=>{connection(`${val}-login`)}}/>,
     "menu": <Menu setPage={setPage} singlePlayer={singlePlayer}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
@@ -211,7 +215,10 @@ export default function App() {
   /// EFFECTS
 
   React.useEffect(()=>{
-    if(page === "login" && peer && users.player !== "" && peer.open)  setPage("menu")
+    if(page === "login" && peer && users.player !== "" && peer.open)  {
+      activateAlert("")
+      setPage("menu")
+    }
   })
 
   return menu ?
