@@ -5,12 +5,12 @@ import { cardsD } from "../assets/cardsList"
 import { Card } from "./Card"
 
 type Props = {
-    setPage: Function
+    backToMenu: Function
     cardsDef: string[][]
     setCardsDef: Function
 }
 
-export default function HandEditor ({setPage, cardsDef, setCardsDef}: Props) {
+export default function HandEditor ({backToMenu, cardsDef, setCardsDef}: Props) {
     const [cards, setCards] = React.useState(cardsDef)
     const [selected, setSelected]= React.useState<{round: number, _id: string} | undefined>()
 
@@ -36,9 +36,14 @@ export default function HandEditor ({setPage, cardsDef, setCardsDef}: Props) {
         </section>
     }
 
-    return <section>
+    React.useEffect(()=>{
+        let screen = document.querySelector(".hand-editor")
+        if(screen) screen.classList.add("fade-from-right")
+    }, [])
+
+    return <section className="hand-editor">
         {!selected ? <>
-            <button className="return-button" onClick={()=>{setCardsDef(cards); setPage("menu")}}><FontAwesomeIcon icon={faArrowLeft}/></button>
+            <button className="return-button" onClick={()=>{setCardsDef(cards); backToMenu()}}><FontAwesomeIcon icon={faArrowLeft}/></button>
             <div>
                 {cards.map((round, i) => {
                     return <React.Fragment key={Math.random()}>

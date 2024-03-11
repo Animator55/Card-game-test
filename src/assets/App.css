@@ -577,15 +577,27 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   flex-direction: column;
   width: 90%;
   padding: 0 5%;
+  opacity: 0;
+  animation: fade 200ms forwards;
 }
 
-.user-list > .search {
+@keyframes fade {
+  from{opacity: 0;}to{opacity: 1;}
+}
+
+.top {
+  margin: 1rem 0;
+}
+
+.top > .return-button {
+  margin: 0;
+}
+.user-list > .top, .user-list .search {
   display: flex;
   width: 100%;
-  margin: 1rem 0;
   gap: 0.5rem;
 }
-.user-list > .search > input{
+.user-list .search > input{
   background-color: #2b2525;
   color: white;
   width: 100%;
@@ -594,7 +606,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   font-size: large;
   border-radius: 5px;
 }
-.user-list > .search > button {
+.user-list .search > button {
   background-color: #1170ff;
   color: white;
   font-size: .9rem;
@@ -621,6 +633,11 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 }
 
 /**/
+
+.hand-editor {
+  opacity: 0;
+  animation: fade 200ms forwards;
+}
 
 .editor-round {
   display: flex;
@@ -742,4 +759,84 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .error-box:empty {
   border: none;
   padding: 0;
+}
+
+.fade-to-left {
+  animation: fade-to-left 300ms ease-in forwards;
+  opacity: 1;
+  position: relative;
+}
+.fade-from-left {
+  animation: fade-to-left 300ms ease-in forwards reverse;
+  position: relative;
+  opacity: 0;
+}
+
+@keyframes fade-to-left {
+  from {
+    opacity: 1;
+    left: 0%;
+  }
+  100% {
+    opacity: 0;
+    left: -50%;
+  }
+}
+
+/***/
+.fade-from-right {
+  animation: fade-from-right 300ms ease-in forwards;
+  opacity: 0;
+  position: relative;
+}
+.fade-to-right {
+  animation: fade-from-right 300ms ease-in forwards reverse;
+  opacity: 1;
+  position: relative;
+}
+
+@keyframes fade-from-right {
+  from {
+    opacity: 0;
+    left: 40%;
+  }
+  100% {
+    opacity: 1;
+    left: 0%;
+  }
+}
+
+.fade-from-right .fade-from-right:nth-of-type(1) {
+  animation-delay: 250ms
+}
+.fade-from-right .fade-from-right:nth-of-type(2) {
+  animation-delay: 300ms
+}
+.fade-from-right .fade-from-right:nth-of-type(3) {
+  animation-delay: 350ms
+}
+.fade-from-right .fade-from-right:nth-of-type(4) {
+  animation-delay: 400ms
+}
+
+/***/
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: opacity 300ms;
+  z-index: 5;
+}
+.loading-screen.d-none {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+.loading-screen > * {
+  font-size: 2rem;
 }

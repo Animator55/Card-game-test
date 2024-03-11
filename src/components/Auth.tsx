@@ -27,6 +27,16 @@ export default function Auth({ confirm, loginState }: Props) {
     if(input) input.focus()
   })
 
+  React.useEffect(()=>{
+    if(loginState !== "") {
+      setError(loginState)
+      let auth = document.querySelector(".auth-screen")
+      let button = auth?.lastChild?.lastChild as HTMLInputElement
+      if(button)button.classList.remove('loading-button')    
+    }
+  }, [loginState])
+
+
   return <section className="auth-screen">
     <h1>Login</h1>
       <section className='error-box'>{error}</section>

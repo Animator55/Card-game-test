@@ -349,6 +349,8 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     })
 
     React.useEffect(()=>{
+        let loading = document.querySelector(".loading-screen")
+        if(loading) loading.classList.add("d-none")
         setTimeout(()=>{
             if(!activateIA) connectToPeer(usersDef.enemy)
         }, 5000)

@@ -7,7 +7,8 @@ import Auth from "./components/Auth"
 import HandEditor from "./components/HandEditor"
 import { cardsD } from "./assets/cardsList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import {  faCircleNotch } from "@fortawesome/free-solid-svg-icons"
+import { UserList } from "./components/UserList"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -54,6 +55,8 @@ const generateHand = ()=>{
 
 const defaultUsers: string[] = []
 
+let justLogged = false
+
 export default function App() {
   const [alert, activateAlert] = React.useState("")
   const [activateIA, setIA] = React.useState(false)
@@ -74,9 +77,15 @@ export default function App() {
     setUsers({...users, enemy: "IA"})
     let IACards = generateHand()
 
+
     setCardsOpponent(IACards)
     setIA(true)
-    bootbattle(false)
+
+    let loading = document.querySelector(".loading-screen")
+    loading?.classList.remove("d-none")
+    setTimeout(()=>{
+      bootbattle(false)
+    }, 500)
   }
 
   /// CONNECTIONS 
@@ -108,7 +117,7 @@ export default function App() {
         case 'unavailable-id':
           console.log(id + ' is taken')
           peer = undefined
-          activateAlert("The name " + id + " is taken, please use other")
+          activateAlert("The name " + id.split("-")[0] + " is taken, please insert other")
           break
         case 'peer-unavailable':
           console.log('user offline')
@@ -157,26 +166,18 @@ export default function App() {
   /// COMPONENTS
 
 
-  const UsersList = ()=>{
-    return <section className="user-list">
-        <div className="search">
-          <input placeholder="username"/>
-          <button onClick={(e)=>{
-            let input = e.currentTarget.previousElementSibling as HTMLInputElement
-            if(input.value === "") return
-            setCachedUsers([...cachedUsers, input.value])
-          }}><FontAwesomeIcon icon={faMagnifyingGlass}/></button>
-        </div>
-
-        <ul>
-          {Object.values(cachedUsers).map((el, i)=>{
-            return <button
-              key={"user-li" + el + i}
-              onClick={()=>{setPlayer(el); connectToPeer(el+ "-login")}}
-            >{el}</button>
-          })}
-        </ul>
-    </section>
+  const backToMenu = (from: string)=>{
+    let screen = document.querySelector(from)
+    if(screen){ 
+      screen.classList.remove("fade-from-right")
+      screen.clientWidth
+      screen.classList.add("fade-to-right")
+      screen.clientWidth
+    }
+    setTimeout(() => {
+      justLogged = false
+      setPage("menu")
+    }, 300);
   }
 
   const ShowPlayer = ()=>{
@@ -198,39 +199,62 @@ export default function App() {
   }
 
   // pages
-
   const pages: {[key: string]: any} = {
     "login": <Auth loginState={alert} confirm={(val: string)=>{connection(`${val}-login`)}}/>,
-    "menu": <Menu setPage={setPage} singlePlayer={singlePlayer}/>,
+    "menu": <Menu setPage={setPage} singlePlayer={singlePlayer} justLogged={justLogged}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
         <ShowPlayer/>
         :
-        <UsersList/>
+        <UserList 
+          cachedUsers={cachedUsers}
+          setCachedUsers={setCachedUsers}
+          backToMenu={()=>{backToMenu(".user-list")}}
+          selectUser={(user:string)=>{setPlayer(user); connectToPeer(user+ "-login")}}
+        />
       }
     </>,
-    "handEdit": <HandEditor setPage={setPage} cardsDef={cards} setCardsDef={setCards}/>,
+    "handEdit": <HandEditor backToMenu={()=>{backToMenu(".hand-editor")}} cardsDef={cards} setCardsDef={setCards}/>,
   }
 
   /// EFFECTS
 
   React.useEffect(()=>{
+    if(page === "userList" && !selectedPlayer && cachedUsers.length === 0) {
+      let search = document.querySelector(".search")?.firstChild as HTMLInputElement
+      if(search) search.focus()
+    } 
+  }, [page])
+
+  React.useEffect(()=>{
     if(page === "login" && peer && users.player !== "" && peer.open)  {
-      activateAlert("")
-      setPage("menu")
+      let auth = document.querySelector(".auth-screen")
+      if(!auth) return 
+      auth.classList.add("fade-to-left")
+      
+      setTimeout(()=>{
+        activateAlert("")
+        setPage("menu")
+        justLogged = true
+      },300)
     }
   })
 
-  return menu ?
-    <main>
-      {pages[page]}
-    </main>
-    :
-    <PlayTable
-      usersDef={users}
-      cardsDefault={cards}
-      cardsOpponentDefault={cardsOpponent}
-      activateIA={activateIA}
-    />
+  return <>
+    <div className="loading-screen d-none">
+      <FontAwesomeIcon icon={faCircleNotch} spin/>
+    </div>
+    {menu ?
+      <main>
+        {pages[page]}
+      </main>
+      :
+      <PlayTable
+        usersDef={users}
+        cardsDefault={cards}
+        cardsOpponentDefault={cardsOpponent}
+        activateIA={activateIA}
+      />}
+  </>
 
 }
