@@ -585,6 +585,16 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   from{opacity: 0;}to{opacity: 1;}
 }
 
+.fade-in {
+  opacity: 0;
+  position: relative;
+  animation: fade-in-up 300ms forwards;
+}
+
+@keyframes fade-in-up {
+  from {opacity: 0;top: 20px;}to{opacity: 1;top: 0;}
+}
+
 .top {
   margin: 1rem 0;
 }
@@ -698,6 +708,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .loading-button {
   position: relative;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .loading-button::before {
@@ -748,6 +759,10 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   animation: loading 1s infinite ease-in-out;
 }
 
+.show-player .error-box {
+  width: calc(100% - 3rem);
+  margin: 0 auto;
+}
 .error-box {
   height: fit-content;
   padding: 0.5rem;
@@ -806,16 +821,20 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   }
 }
 
-.fade-from-right .fade-from-right:nth-of-type(1) {
+.fade-from-left .fade-in:nth-of-type(1),
+.fade-from-right .fade-in:nth-of-type(1) {
   animation-delay: 250ms
 }
-.fade-from-right .fade-from-right:nth-of-type(2) {
+.fade-from-left .fade-in:nth-of-type(2),
+.fade-from-right .fade-in:nth-of-type(2) {
   animation-delay: 300ms
 }
-.fade-from-right .fade-from-right:nth-of-type(3) {
+.fade-from-left .fade-in:nth-of-type(3),
+.fade-from-right .fade-in:nth-of-type(3) {
   animation-delay: 350ms
 }
-.fade-from-right .fade-from-right:nth-of-type(4) {
+.fade-from-left .fade-in:nth-of-type(4),
+.fade-from-right .fade-in:nth-of-type(4) {
   animation-delay: 400ms
 }
 
@@ -839,4 +858,66 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 }
 .loading-screen > * {
   font-size: 2rem;
+}
+
+/**/
+
+.show-player {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.show-player > button:last-child::before {
+  content: attr(data-text);
+}
+.show-player > button:last-child {
+  position: relative;
+  border: 3px solid #1dbe25; 
+  background-color: transparent;
+  border-radius: 5px;
+  font-weight: bolder;
+  color: #1dbe25;
+  padding: 1rem;
+  width: calc(100% - 2rem);
+  margin: auto 1rem 2rem;
+  font-size: 1.2rem;
+}
+.show-player > button:last-child::after {
+  background-color: #1dbe25;
+}
+.profile-show {
+  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-show > h2 {
+  color: white;
+  font-size: 2rem;
+}
+
+.icon {
+  background-color: #1170ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30vw;
+  height: 30vw;
+  max-width: 200px;
+  max-height:200px;
+  font-size: 17vw;
+  overflow: hidden;
+}
+
+.config-button{
+  background-color: #1170ff;
+  color: white;
+  border-radius: 5px;
+  padding: .7rem 0.9rem;
+  margin: 0.7rem 0.5rem .5rem auto;
+  font-size: 1.2rem;
 }

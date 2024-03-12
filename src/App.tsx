@@ -9,6 +9,7 @@ import { cardsD } from "./assets/cardsList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {  faCircleNotch } from "@fortawesome/free-solid-svg-icons"
 import { UserList } from "./components/UserList"
+import { ShowPlayer } from "./components/ShowPlayer"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -56,6 +57,7 @@ const generateHand = ()=>{
 const defaultUsers: string[] = []
 
 let justLogged = false
+let slideFromRight = true
 
 export default function App() {
   const [alert, activateAlert] = React.useState("")
@@ -147,6 +149,7 @@ export default function App() {
         let Data = data as dataTransferMenu
 
         if (Data.action === "fight") {
+          setCardsOpponent(Data.cardsTransfered!)
           peer = undefined
           bootbattle(false)
         }
@@ -180,22 +183,9 @@ export default function App() {
     }, 300);
   }
 
-  const ShowPlayer = ()=>{
-    let checks = users.enemy !== "" && 
-    (conn?.peerConnection.connectionState === "connected" 
-    || conn?.peerConnection.connectionState === "new")
-    return <section>
-      <h2>{selectedPlayer}</h2>
-        {checks && 
-        <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }}>send cards</button>}
-        
-        {checks && cardsOpponent !== undefined && <button onClick={() => {
-          if (!peer || !conn) return
-          conn.send({ action: "fight" })
-          peer = undefined
-          bootbattle(false)
-        }}>Fight</button>}
-    </section>
+  const backToUserList = ()=>{
+    setPlayer(undefined)
+    slideFromRight= false
   }
 
   // pages
@@ -204,9 +194,25 @@ export default function App() {
     "menu": <Menu setPage={setPage} singlePlayer={singlePlayer} justLogged={justLogged}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
-        <ShowPlayer/>
+        <ShowPlayer
+          users={users}
+          conn={conn}
+          back={backToUserList}
+          cardsOpponent={cardsOpponent}
+          selectedPlayer={selectedPlayer}
+          cards={cards}
+          bootbattle={() => {
+            if (!peer || !conn) return
+            conn.send({ action: "fight", cardsTransfered: cards})
+            peer = undefined
+            bootbattle(false)
+          }}
+          alert={alert}
+          retryConn={()=>{conn=undefined; activateAlert(""); connectToPeer(selectedPlayer+ "-login")}}
+        />
         :
         <UserList 
+          slideFromRight={slideFromRight}
           cachedUsers={cachedUsers}
           setCachedUsers={setCachedUsers}
           backToMenu={()=>{backToMenu(".user-list")}}
@@ -224,6 +230,7 @@ export default function App() {
       let search = document.querySelector(".search")?.firstChild as HTMLInputElement
       if(search) search.focus()
     } 
+    if(slideFromRight === false) slideFromRight = true
   }, [page])
 
   React.useEffect(()=>{

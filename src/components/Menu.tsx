@@ -21,8 +21,8 @@ export default function Menu({setPage, singlePlayer, justLogged}: Props) {
   return <section className={"menu " + className}>
     <h1 className="title">Magic Card Game</h1>
     <hr></hr>
-    <button className={className} onClick={()=>{singlePlayer()}}>SinglePlayer</button>
-    <button className={className} onClick={()=>{changePage("userList")}}>Multiplayer</button>
-    <button className={className} onClick={()=>{changePage("handEdit")}}>Edit Cards</button>
+    <button className="fade-in" onClick={()=>{singlePlayer()}}>SinglePlayer</button>
+    <button className="fade-in" onClick={()=>{changePage("userList")}}>Multiplayer</button>
+    <button className="fade-in" onClick={()=>{changePage("handEdit")}}>Edit Cards</button>
   </section>
 }
