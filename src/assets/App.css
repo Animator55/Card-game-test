@@ -3,6 +3,14 @@ body {
   background-color: rgb(17, 0, 27);
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
 main {
   display: flex;
   position:  relative;
@@ -579,6 +587,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   padding: 0 5%;
   opacity: 0;
   animation: fade 200ms forwards;
+  position: relative;
 }
 
 @keyframes fade {
@@ -606,6 +615,8 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   display: flex;
   width: 100%;
   gap: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 .user-list .search > input{
   background-color: #2b2525;
@@ -632,6 +643,16 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   flex-direction: column;
   padding: 0;
   gap: 0.5rem;
+  overflow-y: scroll;
+  height: 100%;
+  position: relative;
+}
+.user-list::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  background: linear-gradient(180deg,transparent 75%, rgb(17, 0, 27) 98%);
 }
 .user-list > ul > button {
   border: 3px solid #1170ff;
@@ -639,7 +660,10 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   color: white;
   font-size: 1.2rem;
   border-radius: 5px;
-  padding: 1.2rem;
+  padding: 0rem 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /**/
@@ -911,6 +935,12 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   max-height:200px;
   font-size: 17vw;
   overflow: hidden;
+}
+
+.icon.list {
+  width: 2.7rem;
+  height: 2.7rem;
+  font-size: 1.4rem;
 }
 
 .config-button{

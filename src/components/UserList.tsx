@@ -1,6 +1,7 @@
 import { faArrowLeft, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { FormEvent } from "react"
+import { iconSelector } from "../logic/iconSelector"
 
 type Props = {
   slideFromRight: boolean, 
@@ -21,6 +22,7 @@ export const UserList = ({cachedUsers, setCachedUsers, backToMenu, selectUser, s
     justAdded = "user-li" + input.value + cachedUsers.length
     setCachedUsers([...cachedUsers, input.value])
     input.value = ""
+    input.blur()
   }
 
   const handleSelectUser = (user: string)=>{
@@ -64,7 +66,12 @@ export const UserList = ({cachedUsers, setCachedUsers, backToMenu, selectUser, s
             id={"user-li" + el + i}
             className={justAdded === "user-li" + el + i ? "fade-in" : ""}
             onClick={()=>{handleSelectUser(el)}}
-          >{el}</button>
+          >
+            <div className="icon list">
+              <FontAwesomeIcon icon={iconSelector(el)}/>
+            </div>
+            <p>{el}</p>
+          </button>
         })}
       </ul>
   </section>

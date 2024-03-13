@@ -17,6 +17,7 @@ export default function Auth({ confirm, loginState }: Props) {
     let submit = e.currentTarget[1] as HTMLButtonElement
 
     submit.classList.add('loading-button')
+    input.blur()
 
     confirm(input.value)
   }
