@@ -169,14 +169,15 @@ export default function App() {
   /// COMPONENTS
 
 
-  const backToMenu = (from: string)=>{
+  const backToMenu = (from: string, slide: boolean)=>{
     let screen = document.querySelector(from)
-    if(screen){ 
+    if(screen && !slide){ 
       screen.classList.remove("fade-from-right")
       screen.clientWidth
       screen.classList.add("fade-to-right")
       screen.clientWidth
     }
+    
     setTimeout(() => {
       justLogged = false
       setPage("menu")
@@ -215,12 +216,12 @@ export default function App() {
           slideFromRight={slideFromRight}
           cachedUsers={cachedUsers}
           setCachedUsers={setCachedUsers}
-          backToMenu={()=>{backToMenu(".user-list")}}
+          backToMenu={(slide:boolean)=>{backToMenu(".user-list", slide)}}
           selectUser={(user:string)=>{setPlayer(user); connectToPeer(user+ "-login")}}
         />
       }
     </>,
-    "handEdit": <HandEditor backToMenu={()=>{backToMenu(".hand-editor")}} cardsDef={cards} setCardsDef={setCards}/>,
+    "handEdit": <HandEditor backToMenu={(slide:boolean)=>{backToMenu(".hand-editor", slide)}} cardsDef={cards} setCardsDef={setCards}/>,
   }
 
   /// EFFECTS

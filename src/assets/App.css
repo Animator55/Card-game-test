@@ -634,6 +634,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   border-radius: 5px;
   padding: .8rem;
   font-size: large;
+  position: relative;
 }
 
 /***/
@@ -670,6 +671,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 .hand-editor {
   opacity: 0;
+  position: relative;
   animation: fade 200ms forwards;
 }
 
@@ -890,6 +892,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   display: flex;
   flex-direction: column;
   width: 100%;
+  position: relative;
 }
 
 .show-player > button:last-child::before {
