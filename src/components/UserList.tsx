@@ -96,19 +96,23 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
       document.removeEventListener("touchcancel", drop)
 
 
-      if (parseInt(button.style.left) < initialX - button.clientWidth / 6) {
-        button.style.transition = "left 300ms, opacity 100ms"
-        button.style.pointerEvents = "none"
-        button.style.left = button.clientWidth + "px"
-        button.style.opacity = "0"
-        console.log("a")
+      if (parseInt(button.style.left) < (button.clientWidth/6)*-1) {
+        button.style.transition = "left 300ms"
+        button.style.left = ((button.clientWidth) * -1) + "px"
+        button.parentElement!.classList.remove("fade-in")
+        button.parentElement!.style.opacity = "0"
+        setTimeout(() => {
+          setCachedUsers(cachedUsers.filter(el=>{if(el !== button.name) return el}) as string[])
+        }, 300)
+      }
+      else if(parseInt(button.style.left) > -10) {
+        handleSelectUser(button.name)
       }
       else {
         button.style.transition = "left 300ms"
         button.style.left = "0px"
         setTimeout(() => {
           button.style.transition = ""
-          button.style.pointerEvents = "all"
         }, 300)
       }
     }
