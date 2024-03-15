@@ -79,10 +79,20 @@ export default function App() {
     setUsers({...users, enemy: "IA"})
     let IACards = generateHand()
 
-
     setCardsOpponent(IACards)
     setIA(true)
 
+    let loading = document.querySelector(".loading-screen")
+    loading?.classList.remove("d-none")
+    setTimeout(()=>{
+      bootbattle(false)
+    }, 500)
+  }
+
+  const startMultiplayerBattle = () => {
+    if (!peer || !conn) return
+    conn.send({ action: "fight", cardsTransfered: cards})
+    peer = undefined
     let loading = document.querySelector(".loading-screen")
     loading?.classList.remove("d-none")
     setTimeout(()=>{
@@ -150,8 +160,12 @@ export default function App() {
 
         if (Data.action === "fight") {
           setCardsOpponent(Data.cardsTransfered!)
-          peer = undefined
-          bootbattle(false)
+          peer = undefined // try later to remove this
+          let loading = document.querySelector(".loading-screen")
+          loading?.classList.remove("d-none")
+          setTimeout(()=>{
+            bootbattle(false)
+          }, 500)
         }
         else setCardsOpponent(Data.cardsTransfered!)
       })
@@ -192,7 +206,7 @@ export default function App() {
   // pages
   const pages: {[key: string]: any} = {
     "login": <Auth loginState={alert} confirm={(val: string)=>{connection(`${val}-login`)}}/>,
-    "menu": <Menu setPage={setPage} singlePlayer={singlePlayer} justLogged={justLogged}/>,
+    "menu": <Menu setPage={setPage} singlePlayer={singlePlayer} justLogged={justLogged} user={users.player}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
         <ShowPlayer
@@ -202,12 +216,7 @@ export default function App() {
           cardsOpponent={cardsOpponent}
           selectedPlayer={selectedPlayer}
           cards={cards}
-          bootbattle={() => {
-            if (!peer || !conn) return
-            conn.send({ action: "fight", cardsTransfered: cards})
-            peer = undefined
-            bootbattle(false)
-          }}
+          bootbattle={startMultiplayerBattle}
           alert={alert}
           retryConn={()=>{conn=undefined; activateAlert(""); connectToPeer(selectedPlayer+ "-login")}}
         />

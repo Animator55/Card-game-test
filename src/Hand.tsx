@@ -1,6 +1,8 @@
 import React from 'react'
 import { userType } from './vite-env'
 import { Card } from './components/Card'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faLayerGroup } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
   users:{player: userType, enemy: userType}
@@ -66,7 +68,9 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
       && <button className="deck" onClick={() => {
         if (fight[1] && !fight[0] && cardsAv.length === 0) pickCard(true)
         else pickCard(false)
-      }}>Pick Card</button>}
+      }}>
+        <FontAwesomeIcon icon={faLayerGroup}/>
+      </button>}
     <div className="hand player" data-length={`${jsx.length}`} style={{gridTemplateColumns: `repeat(${jsx.length}, ${100/jsx.length}%)`}}>
       {jsx}
     </div>

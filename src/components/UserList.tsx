@@ -1,7 +1,7 @@
-import { faArrowLeft, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faMagnifyingGlass, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { FormEvent } from "react"
-import { iconSelector } from "../logic/iconSelector"
+import { colorGenerator, iconSelector } from "../logic/iconSelector"
 
 type Props = {
   slideFromRight: boolean,
@@ -132,8 +132,10 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
 
 
       if (parseInt(button.style.left) < (button.clientWidth/6)*-1) {
-        button.style.transition = "left 300ms, opacity 100ms"
-        button.style.left = ((button.clientWidth/3) * -1) + "px"
+        button.style.transition = "left 300ms"
+        button.style.left = ((button.clientWidth) * -1) + "px"
+        button.parentElement!.classList.remove("fade-in")
+        button.parentElement!.style.opacity = "0"
         setTimeout(() => {
           setCachedUsers(cachedUsers.filter(el=>{if(el !== button.name) return el}) as string[])
         }, 300)
@@ -176,19 +178,24 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
 
     <ul>
       {cachedUsers.map((el, i) => {
-        return <button
+        return <div 
           key={"user-li" + el + i}
-          id={"user-li" + el + i}
-          name={el}
           className={justAdded === "user-li" + el + i ? "fade-in" : ""}
-          onTouchStart={(e)=>{dragUser(e, "user-li" + el + i)}}
-          onMouseDown={(e)=>{dragUserMouse(e, "user-li" + el + i)}}
         >
-          <div className="icon list">
-            <FontAwesomeIcon icon={iconSelector(el)} />
-          </div>
-          <p>{el}</p>
-        </button>
+          <FontAwesomeIcon icon={faTrash}/>
+          <button
+            id={"user-li" + el + i}
+            name={el}
+            style={{left: 0}}
+            onTouchStart={(e)=>{dragUser(e, "user-li" + el + i)}}
+            onMouseDown={(e)=>{dragUserMouse(e, "user-li" + el + i)}}
+          >
+            <div className="icon list" style={{backgroundColor: colorGenerator(el)}}>
+              <FontAwesomeIcon icon={iconSelector(el)} />
+            </div>
+            <p>{el}</p>
+          </button>
+        </div>
       })}
     </ul>
   </section>

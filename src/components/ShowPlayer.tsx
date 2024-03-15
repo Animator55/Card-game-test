@@ -1,7 +1,7 @@
 import { faArrowLeft, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DataConnection } from "peerjs"
-import { iconSelector } from "../logic/iconSelector"
+import { colorGenerator, iconSelector } from "../logic/iconSelector"
 import React from "react"
 
 type Props = {
@@ -118,7 +118,7 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
             <button className="config-button" onClick={() => { openSpan() }}><FontAwesomeIcon icon={faEllipsisVertical} /></button>
         </div>
         <div className="profile-show">
-            <div className="icon">
+            <div className="icon" style={{backgroundColor: colorGenerator(selectedPlayer)}}>
                 <FontAwesomeIcon icon={iconSelector(selectedPlayer)} />
             </div>
             <h2>{selectedPlayer}</h2>

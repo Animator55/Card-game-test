@@ -103,7 +103,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
       // to player
       if(attackResult.attackToLife._id === player._id) {
         playerDOM.classList.add('get-hit')
-        let bar = playerDOM.lastChild?.firstChild as HTMLElement
+        let bar = playerDOM.lastChild?.lastChild?.firstChild as HTMLElement
         if(!bar) return
         playerLife = playerLife - attackResult.attackToLife.number
         bar.style.width = `${playerLife*5}%`
@@ -111,7 +111,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
       // to enemy
       else {
         playerDOM.classList.add('get-hit-enemy')
-        let bar = playerDOM.firstChild?.firstChild as HTMLElement
+        let bar = playerDOM.firstChild?.lastChild?.firstChild as HTMLElement
         if(!bar) return
         enemyLife = enemyLife - attackResult.attackToLife.number
         bar.style.width = `${enemyLife*5}%`

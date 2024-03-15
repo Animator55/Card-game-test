@@ -34,7 +34,7 @@ input, button {
   justify-items: center;
   max-width: 90%;
   bottom: 1rem;
-  z-index: 1;
+  z-index: 2;
 }
 .hand-editable {
   display: grid;
@@ -231,18 +231,21 @@ input, button {
   left: 1rem;
 }
 
-.fixed-b-2, .deck {
+.fixed-b-2 {
   position: fixed;
   top: 45vh;
-  right: 10vw;
-  background-color: rgb(7, 84, 90);
-  color: white;
-  padding: 2rem;
-  border: none;
+  right: 2rem;
   border-radius: 5px;
-  width: 30vw;
+  color: white;
+  background-color: transparent;
+  font-size: 2rem;
+  padding: 1rem;
+  width: auto;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
 }
-.fixed-b-2::before {
+.fixed-b-2::before, .deck::before {
   position: absolute;
   content: "";
   background-color: rgb(58, 126, 143);
@@ -257,6 +260,7 @@ input, button {
   content: "Fight";
   font-size: 1.1rem;
   position: relative;
+  padding: 0.45rem;
   z-index: 1;
 }
 @keyframes fightAnimation {
@@ -270,9 +274,17 @@ input, button {
   }
 }
 .deck {
-  left: 0;
+  position: fixed;
+  top: 45vh;
+  left: 2rem;
   right: auto;
-  background-color: rgb(19, 7, 90);
+  color: white;
+  background-color: transparent;
+  font-size: 2rem;
+  padding: 1rem;
+  width: auto;
+  border: 3px solid;
+  border-radius: 5px;
 }
 
 .table {
@@ -463,22 +475,29 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 /***/
 
-.player-life, .enemy-life {
+.life-container {
   position: absolute;
-  bottom: 0;
-  width: 80%;
-  left: 10%;
+  width: 90%;
+  margin: 0 5%;
+  z-index: 1;
+  top: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.life-container:has(.player-life) {
+  bottom: 9rem;
+  top: auto;
+}
+
+.player-life, .enemy-life {
+  min-width: 60%;
   height: 0.5rem;
   padding: 0.2rem;
   background-color: rgb(51, 51, 51);
-  z-index: 3;
   border-radius: 5px;
 }
 
-.enemy-life {
-  bottom: auto;
-  top: 0;
-}
 
 .bar {
   border-radius: 3px;
@@ -489,6 +508,22 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 
 .player-life > .bar {
   background-color: rgb(233, 52, 52);
+}
+
+.life-container > .profile-user {
+  max-width: 35%;
+}
+.life-container > .profile-user> .icon {
+  min-width: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.7rem;
+}
+.life-container > .profile-user > p {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /***/
@@ -513,13 +548,33 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   z-index: 4;
 }
 
-.connecting-pop {
+.pop-back {
   position: fixed;
+  backdrop-filter: blur(1px);
   z-index: 4;
-  left: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+}
+
+.connecting-pop {
+  margin: auto;
   padding: 1rem;
-  background-color: gray;
+  background-color: #2b2525;
   border-radius: 5px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.connecting-pop > button {
+  background-color: #1170ff;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  padding: 1rem;
+  margin: 1rem auto 0.5rem;
 }
 
 
@@ -544,8 +599,8 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .menu {
   display: flex;
   flex-direction: column;
-  width: 80%;
-  padding: 0 10%;
+  width: 90%;
+  padding: 0 5%;
 }
 
 .menu > .title {
@@ -566,6 +621,17 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   border-radius: 5px;
   padding: 1.5rem;
   margin: 1rem;
+}
+
+.profile-user {
+  margin-top: auto;
+  display:flex;
+  align-items: center;
+  color: white; 
+  gap: .5rem;
+}
+.profile-user > p {
+  font-size: 1.5rem;
 }
 
 .return-button {
@@ -655,9 +721,10 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   inset: 0;
   background: linear-gradient(180deg,transparent 75%, rgb(17, 0, 27) 98%);
 }
-.user-list > ul > button {
+.user-list > ul button {
   border: 3px solid #1170ff;
-  background-color: transparent;
+  background-color: rgb(17, 0, 27);
+  width: 100%;
   color: white;
   font-size: 1.2rem;
   border-radius: 5px;
@@ -665,6 +732,21 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   display: flex;
   align-items: center;
   gap: 1rem;
+  position: relative;
+}
+.user-list > ul > div:has(button){
+  background-color: #1170ff;
+  border-radius: 5px;
+  position: relative;
+  transition: opacity 300ms;
+}
+.user-list > ul > div > svg {
+  position: absolute;
+  right: 1rem;
+  color: white;
+  top: 30%;
+  font-size: 1.5rem;
+  pointer-events: none;
 }
 
 /**/

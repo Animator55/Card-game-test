@@ -1,11 +1,14 @@
-type Props = {setPage: Function, singlePlayer: Function, justLogged: boolean}
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { colorGenerator, iconSelector } from "../logic/iconSelector"
 
-export default function Menu({setPage, singlePlayer, justLogged}: Props) {
+type Props = { setPage: Function, singlePlayer: Function, justLogged: boolean, user: string }
+
+export default function Menu({ setPage, singlePlayer, justLogged, user }: Props) {
   let className = justLogged ? "fade-from-right" : "fade-from-left"
 
-  const changePage = (page: string) =>{
+  const changePage = (page: string) => {
     let menu = document.querySelector(".menu")
-    if(menu) {
+    if (menu) {
       menu.classList.remove("fade-from-right")
       menu.clientWidth
       menu.classList.remove("fade-from-left")
@@ -13,7 +16,7 @@ export default function Menu({setPage, singlePlayer, justLogged}: Props) {
       menu.classList.add("fade-to-left")
       menu.clientWidth
     }
-    setTimeout(()=>{
+    setTimeout(() => {
       setPage(page)
     }, 300)
   }
@@ -21,8 +24,14 @@ export default function Menu({setPage, singlePlayer, justLogged}: Props) {
   return <section className={"menu " + className}>
     <h1 className="title">Magic Card Game</h1>
     <hr></hr>
-    <button className="fade-in" onClick={()=>{singlePlayer()}}>SinglePlayer</button>
-    <button className="fade-in" onClick={()=>{changePage("userList")}}>Multiplayer</button>
-    <button className="fade-in" onClick={()=>{changePage("handEdit")}}>Edit Cards</button>
+    <button className="fade-in" onClick={() => { singlePlayer() }}>SinglePlayer</button>
+    <button className="fade-in" onClick={() => { changePage("userList") }}>Multiplayer</button>
+    <button className="fade-in" onClick={() => { changePage("handEdit") }}>Edit Cards</button>
+    <div className="profile-user">
+      <div className="icon list" style={{ backgroundColor: colorGenerator(user) }}>
+        <FontAwesomeIcon icon={iconSelector(user)} />
+      </div>
+      <p>{user}</p>
+    </div>
   </section>
 }

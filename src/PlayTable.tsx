@@ -10,6 +10,8 @@ import { checkCards } from "./logic/checkCards"
 import { userType } from "./vite-env"
 import Peer, { DataConnection } from "peerjs"
 import { Card } from "./components/Card"
+import { colorGenerator, iconSelector } from "./logic/iconSelector"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 type dataTransfer = { action: string, cards: string[] | string[][], allCards?: string[][] }
 
@@ -290,13 +292,29 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     }
 
     const PlayerLife = () => {
-        return <section className="player-life">
-            <div className="bar" style={{ width: users.player.life * 5 + "%" }}></div>
+        return <section className="life-container">
+            <div className="profile-user">
+                <div className="icon list" style={{ backgroundColor: colorGenerator(users.player._id) }}>
+                    <FontAwesomeIcon icon={iconSelector(users.player._id)} />
+                </div>
+                <p>{users.player._id}</p>
+            </div>
+            <section className="player-life">
+                <div className="bar" style={{ width: users.player.life * 5 + "%" }}></div>
+            </section>
         </section>
     }
     const EnemyLife = () => {
-        return <section className="enemy-life">
-            <div className="bar" style={{ width: users.enemy.life * 5 + "%" }}></div>
+        return <section className="life-container">
+            <div className="profile-user">
+                <div className="icon list" style={{ backgroundColor: colorGenerator(users.enemy._id) }}>
+                    <FontAwesomeIcon icon={iconSelector(users.enemy._id)} />
+                </div>
+                <p>{users.enemy._id}</p>
+            </div>
+            <section className="enemy-life">
+                <div className="bar" style={{ width: users.enemy.life * 5 + "%" }}></div>
+            </section>
         </section>
     }
 
@@ -372,9 +390,12 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             pickCard={pickCard}
             jstAdCard={justAddedCardPlayer}
         />}
-        {checkConnections && <div className="connecting-pop"> 
-            <h2>Connecting to Server...</h2>
-            <button onClick={()=>{connection(usersDef.player)}}>Reconnect</button>
+        {checkConnections && 
+        <div className="pop-back">
+            <div className="connecting-pop"> 
+                <h2>Connecting to Server...</h2>
+                <button onClick={()=>{if(peer) peer.reconnect()}}>Reconnect</button>
+            </div>
         </div>}
         {peer !== undefined && conn === undefined && <div className="connecting-pop"> 
             <h2>Connecting to Peer...</h2>
