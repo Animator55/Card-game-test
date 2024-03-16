@@ -42,7 +42,7 @@ export default function Auth({ confirm, loginState }: Props) {
     <h1>Login</h1>
       <section className='error-box'>{error}</section>
     <form onSubmit={submit} >
-      <input placeholder="user-name"></input>
+      <input placeholder="Username"></input>
       <button type='submit' data-text="Login"></button>
     </form>
   </section>

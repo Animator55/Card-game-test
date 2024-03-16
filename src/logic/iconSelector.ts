@@ -17,7 +17,12 @@ export const colorGenerator = (name: string)=>{
         "#dfa908",
         "#ff1a1a",
     ]
+
+    let letter = name.charAt(0).toUpperCase()
+    let index = letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+    
     let length = name.split("").length
-    let index = length % colors.length
-    return colors[index]
+    let index2 = length % colors.length
+    let filteredIndex = (index + index2) % colors.length
+    return colors[filteredIndex]
 }

@@ -175,7 +175,7 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
     <div className="top">
       <button className="return-button" onClick={() => { backToMenu(false) }}><FontAwesomeIcon icon={faArrowLeft} /></button>
       <form className="search" onSubmit={submit}>
-        <input placeholder="username" />
+        <input placeholder="Search user..." />
         <button type="submit"><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
       </form>
     </div>

@@ -16,8 +16,9 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
 
 
     const CardsList = () => {
-        return selected && <section style={{ display: "flex", flexWrap: "wrap" }}>
+        return selected && <section className="card-list-flex">
             {Object.values(cardsD).map((card) => {
+                if(selected._id.split(".")[0] === card._id) return 
                 return <Card
                     card={card._id}
                     key={Math.random()}
@@ -35,7 +36,6 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
             })}
         </section>
     }
-
 
     const drag = (e: React.TouchEvent<HTMLDivElement>) => {
         let initialX = e.touches[0].pageX
@@ -106,7 +106,16 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
             </div>
         </>
             : <>
-                <button onClick={() => { setSelected(undefined) }}><FontAwesomeIcon icon={faArrowLeft} /></button>
+                <button className="return-button" onClick={() => { setSelected(undefined) }}><FontAwesomeIcon icon={faArrowLeft} /></button>
+                <div className="selected-card">
+                    <Card
+                        card={selected._id.split(".")[0]}
+                        key={Math.random()}
+                        className={"card"}
+                        clickCard={() => {setSelected(undefined)}}
+                        style={{}}
+                    />
+                </div>
                 <CardsList />
             </>
         }

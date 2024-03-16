@@ -655,7 +655,6 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   animation: fade 200ms forwards;
   position: relative;
 }
-
 @keyframes fade {
   from{opacity: 0;}to{opacity: 1;}
 }
@@ -740,6 +739,9 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   position: relative;
   transition: opacity 300ms;
 }
+.user-list > ul > div:last-child {
+  margin-bottom: 3rem;
+}
 .user-list > ul > div > svg {
   position: absolute;
   right: 1rem;
@@ -755,7 +757,16 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   opacity: 0;
   position: relative;
   animation: fade 200ms forwards;
+  display: flex;
+  flex-direction: column;
 }
+.hand-editor:has(.card-list-flex)::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  background: linear-gradient(180deg,transparent 75%, rgb(17, 0, 27) 98%);
+} 
 
 .editor-round {
   display: flex;
@@ -765,6 +776,22 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .round-label {
   color: white;
   margin: 0 0 0 1rem;
+}
+
+.selected-card { 
+  display: flex;
+  justify-content: center;
+  margin: .5rem 0 1rem;
+}
+
+.card-list-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow-y: scroll;
+}
+.card-list-flex > :last-child {
+  margin-bottom: 4rem;
 }
 
 /**/
