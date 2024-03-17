@@ -34,11 +34,6 @@ let cardsP1 = generatedTalesCards([
   ["0001", "0001", "0003", "0001", "0000"],
   ["0002", "0000", "0001", "0003", "0002"],
 ])
-// let cardsP2 = generatedTalesCards([
-//   ["0002", "0005", "0000", "0003", "0001"],
-//   ["0002", "0005", "0003", "0000", "0002"],
-//   ["0001", "0005", "0002", "0006", "0000"],
-// ])
 
 const generateHand = ()=>{
   let hand = []
@@ -205,7 +200,7 @@ export default function App() {
 
   // pages
   const pages: {[key: string]: any} = {
-    "login": <Auth loginState={alert} confirm={(val: string)=>{connection(`${val}-login`)}}/>,
+    "login": <Auth loginState={alert} confirm={(val: string)=>{activateAlert(""); connection(`${val}-login`)}}/>,
     "menu": <Menu setPage={setPage} singlePlayer={singlePlayer} justLogged={justLogged} user={users.player}/>,
     "userList":  <>
       {selectedPlayer !== undefined ? 
@@ -259,7 +254,7 @@ export default function App() {
 
   return <>
     <div className="loading-screen d-none">
-      <FontAwesomeIcon icon={faCircleNotch} spin/>
+      <FontAwesomeIcon icon={faCircleNotch}/>
     </div>
     {menu ?
       <main>

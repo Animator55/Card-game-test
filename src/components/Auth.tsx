@@ -19,20 +19,21 @@ export default function Auth({ confirm, loginState }: Props) {
     submit.classList.add('loading-button')
     input.blur()
 
+    setError("")
     confirm(input.value)
   }
 
   React.useEffect(()=>{
-    let auth = document.querySelector(".auth-screen")
-    let input = auth?.lastChild?.firstChild as HTMLInputElement
+    let auth = document.querySelector(".form")
+    let input = auth?.firstChild as HTMLInputElement
     if(input) input.focus()
   })
 
   React.useEffect(()=>{
     if(loginState !== "") {
       setError(loginState)
-      let auth = document.querySelector(".auth-screen")
-      let button = auth?.lastChild?.lastChild as HTMLInputElement
+      let auth = document.querySelector(".form")
+      let button = auth?.lastChild as HTMLInputElement
       if(button)button.classList.remove('loading-button')    
     }
   }, [loginState])
@@ -41,7 +42,7 @@ export default function Auth({ confirm, loginState }: Props) {
   return <section className="auth-screen">
     <h1>Login</h1>
       <section className='error-box'>{error}</section>
-    <form onSubmit={submit} >
+    <form onSubmit={submit} className="form" >
       <input placeholder="Username"></input>
       <button type='submit' data-text="Login"></button>
     </form>

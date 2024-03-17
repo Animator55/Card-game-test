@@ -24,8 +24,9 @@ export const Card = ({className, clickCard, style, card, id, dataDamage}:Props) 
         className={className}
         onClick={()=>{clickCard()}}
         style={style}
+        data-type={cardsD[card].type}
     >
-        <h4>{cardsD[card].name}</h4>
+        <h4 className="card-text">{cardsD[card].name}</h4>
         <div className='card-image' style={{ color: cardsD[card].image }}>
             <FontAwesomeIcon icon={iconSelector[cardsD[card].type]} />
         </div>

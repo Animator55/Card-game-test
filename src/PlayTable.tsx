@@ -12,10 +12,11 @@ import Peer, { DataConnection } from "peerjs"
 import { Card } from "./components/Card"
 import { colorGenerator, iconSelector } from "./logic/iconSelector"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Conclusion from "./components/Conclusion"
 
 type dataTransfer = { action: string, cards: string[] | string[][], allCards?: string[][] }
 
-let turnVelocity = 2000
+let turnVelocity = 500
 let justAddedCardPlayer = ""
 let justAddedCardEnemy = ""
 let conn: DataConnection | undefined = undefined
@@ -29,6 +30,7 @@ type Props = {
 }
 
 export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefault, usersDef}: Props) {
+    const [conclusion, setConclusion] = React.useState("")
     const [round, setRound] = React.useState(0)
     const [subRound, setSubRound] = React.useState({ index: 0, player: "" })
     const [selected, setSelected] = React.useState<string[]>([])
@@ -74,7 +76,11 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         if (cardsAv.length === 5) return
 
         let newCard = pickFromDeck(cards, cards[round])
-        if (newCard === undefined) return
+        if (newCard === undefined) {
+            activateFight([true, fight[1]])
+            setSubRound({ index: subRound.index, player: users.player._id })
+            return 
+        }
         let deleteAmount = 1
 
         let newCards = cards[round].filter((card) => {
@@ -338,6 +344,10 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             setRound(round + 1)
             activateFight([false, false])
         }
+        let Pdead = users.player.life <= 0
+        let Edead = users.enemy.life <= 0
+        if(Edead) setConclusion(users.player._id)
+        else if(Pdead) setConclusion(users.enemy._id)
     }, [subRound])
 
     React.useEffect(() => {
@@ -356,6 +366,10 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             else if (fight[0] && fight[1] && subRound.player !== users.player._id) sendResult(false)
         }
     }, [fight])
+
+    React.useEffect(()=>{
+        if(round === 3) setConclusion(users.player.life > users.enemy.life ? users.player._id : users.enemy._id)
+    }, [round])
 
     let dataTurn = "2"
     
@@ -377,30 +391,33 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     let checkConnections = !activateIA && peer === undefined
 
     return <main data-turn={dataTurn}>
-        <EnemyLife />
-        <RenderEnemyCards />
-        <RenderTable />
-        {cards.length !== 0 && <Hand
-            confirm={(sel: string[]) => { setSelected(sel); activateFight([true, fight[1]]) }}
-            users={users}
-            subRound={subRound}
-            fight={fight}
-            currentCards={cards[round]}
-            selectedReal={selected}
-            pickCard={pickCard}
-            jstAdCard={justAddedCardPlayer}
-        />}
-        {checkConnections && 
-        <div className="pop-back">
-            <div className="connecting-pop"> 
-                <h2>Connecting to Server...</h2>
-                <button onClick={()=>{if(peer) peer.reconnect()}}>Reconnect</button>
-            </div>
-        </div>}
-        {peer !== undefined && conn === undefined && <div className="connecting-pop"> 
-            <h2>Connecting to Peer...</h2>
-            <button onClick={()=>{connectToPeer(usersDef.enemy)}}>Reconnect</button>
-        </div>}
-        <PlayerLife />
+        {conclusion !== "" ? <Conclusion result={conclusion} sendToMenu={()=>{}}/> 
+        : <>
+            <EnemyLife />
+            <RenderEnemyCards />
+            <RenderTable />
+            {cards.length !== 0 && cards[round] && cards[round].length !== 0 && <Hand
+                confirm={(sel: string[]) => { setSelected(sel); activateFight([true, fight[1]]) }}
+                users={users}
+                subRound={subRound}
+                fight={fight}
+                currentCards={cards[round]}
+                selectedReal={selected}
+                pickCard={pickCard}
+                jstAdCard={justAddedCardPlayer}
+            />}
+            {checkConnections && 
+            <div className="pop-back">
+                <div className="connecting-pop"> 
+                    <h2>Connecting to Server...</h2>
+                    <button onClick={()=>{if(peer) peer.reconnect()}}>Reconnect</button>
+                </div>
+            </div>}
+            {peer !== undefined && conn === undefined && <div className="connecting-pop"> 
+                <h2>Connecting to Peer...</h2>
+                <button onClick={()=>{connectToPeer(usersDef.enemy)}}>Reconnect</button>
+            </div>}
+            <PlayerLife />
+        </>}
     </main>
 }
