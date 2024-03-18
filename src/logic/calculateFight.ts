@@ -98,6 +98,5 @@ export const calculateFight = (selected: string[], selectedEnemy: string[], turn
         result.push(event)
     }
 
-    console.log(result)
     return result
 }

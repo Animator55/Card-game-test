@@ -16,7 +16,7 @@ export type cardType = {
 export const cardsD: cardsList = {
     "0000": {
         _id: "0000",
-        name: "Dragon 1",
+        name: "Fire Dragon",
         image: "#ff00d4",
         type: "Invocation",
         strength: 3,
@@ -25,8 +25,8 @@ export const cardsD: cardsList = {
     },
     "0001": {
         _id: "0001",
-        name: "Dragon 2",
-        image: "#ff00d4",
+        name: "Ice Dragon",
+        image: "#56ceb6",
         type: "Invocation",
         strength: 4,
         speed: 2,
@@ -43,8 +43,8 @@ export const cardsD: cardsList = {
     },
     "0003": {
         _id: "0003",
-        name: "Wall",
-        image: "#3145ff",
+        name: "Ice Wall",
+        image: "#aee5ff",
         type: "Defense",
         strength: 0,
         speed: 4,
@@ -52,17 +52,17 @@ export const cardsD: cardsList = {
     },
     "0004": {
         _id: "0004",
-        name: "Potion 2",
+        name: "Small Potion",
         image: "#ffe400",
         type: "Support",
         strength: 5,
-        speed: 5,
+        speed: 1,
         defense: 0
     },
     "0005": {
         _id: "0005",
         name: "Water Ball",
-        image: "#ff0000",
+        image: "#338fff",
         type: "Attack",
         strength: 3,
         speed: 5,
@@ -70,8 +70,8 @@ export const cardsD: cardsList = {
     },
     "0006": {
         _id: "0006",
-        name: "Wall 2",
-        image: "#3145ff",
+        name: "Stone Wall",
+        image: "#8a4e14",
         type: "Defense",
         strength: 0,
         speed: 3,
@@ -79,11 +79,11 @@ export const cardsD: cardsList = {
     },
     "0007": {
         _id: "0007",
-        name: "Potion",
-        image: "#ffe400",
+        name: "Big Potion",
+        image: "#ff9b00",
         type: "Support",
         strength: 10,
-        speed: 1,
+        speed: 5,
         defense: 0
     },
 }

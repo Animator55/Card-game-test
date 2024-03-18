@@ -116,12 +116,15 @@ input, button {
 }
 .card-text {
   filter: drop-shadow(0.2rem 0 rgba(0, 0, 0, 0.7));
+  z-index: 1;
+  position: absolute;
 }
 .card-image {
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 1rem;
 }
 .card-image > svg {
   font-size: 2.5rem;
@@ -377,6 +380,10 @@ main[data-turn="0"] .table::after, main[data-turn="1"] .table::before {
 }
 main[data-turn="1"] .hand.player {
   filter: brightness(0.4);
+  pointer-events: none;
+}
+main[data-turn="0"] .hand.enemy {
+  filter: brightness(0.4);
 }
 main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   top: 2.5rem;
@@ -576,7 +583,7 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
 .pop-back {
   position: fixed;
   backdrop-filter: blur(1px);
-  z-index: 4;
+  z-index: 8;
   display: flex;
   align-items: center;
   justify-content: center;

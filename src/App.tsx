@@ -91,12 +91,10 @@ export default function App() {
     if (conn !== undefined || peer === undefined) return
 
     function closeConn() {
-      console.log('closeConn')
       conn = undefined
     }
 
     if (duel !== undefined) {
-      console.log('Connecting to ' + duel)
       if (!peer.connect) return
       conn = peer.connect(duel)
       conn.on('close', closeConn)
@@ -104,31 +102,26 @@ export default function App() {
     }
   }
   function connection(id: string): undefined | string { //create session
-    // if(!checkValidId(id, password)) return "invalid"
     peer = new Peer(id);
     if (peer === undefined) return
 
     peer.on('error', function (err) {
       switch (err.type) {
         case 'unavailable-id':
-          console.log(id + ' is taken')
           peer = undefined
           activateAlert("The name " + id.split("-")[0] + " is taken, please insert other")
           break
         case 'peer-unavailable':
-          console.log('user offline')
           activateAlert("User Offline")
           break
         default:
           conn = undefined
-          console.log('an error happened', peer)
           activateAlert("A connection error happened, please retry")
       }
       return false;
     })
-    peer.on('open', function (id: string) {
+    peer.on('open', function () {
       if (peer === undefined || peer.id === undefined) return
-      console.log('Hi ' + id)
       setUsers({ ...users, player: peer.id.split("-")[0] })
     })
     if (conn !== undefined) return
@@ -137,14 +130,12 @@ export default function App() {
       if (!conn) return
 
       conn.on("data", function (data) { //RECIEVED DATA
-        console.log("sended to you " + data)
         if (!peer || !conn) return
 
         let Data = data as dataTransferMenu
 
         if (Data.action === "fight") {
           setCardsOpponent(Data.cardsTransfered!)
-          // peer = undefined // try later to remove this
           let loading = document.querySelector(".loading-screen")
           loading?.classList.remove("d-none")
           setTimeout(()=>{
@@ -152,11 +143,12 @@ export default function App() {
           }, 500)
         }
         else setCardsOpponent(Data.cardsTransfered!)
+        if(conn.peer && conn.peer !== "" && 
+        !cachedUsers.includes(conn.peer)) setCachedUsers([...cachedUsers, conn.peer.split("-")[0]])
       })
 
       conn.on('close', function () {
         if (!conn) return
-        console.log('connection was closed by ' + conn.peer)
         conn.close()
         conn = undefined
       })
@@ -245,11 +237,14 @@ export default function App() {
       },300)
 
       if(defaultCards.length !== 0) window.localStorage.setItem(users.player, cards.join("/"))
+      if( window.localStorage.getItem(users.player) === null) return
+
       let gettedCards = window.localStorage.getItem(users.player)!.split("/")
       let roundedCards = gettedCards.map(el=>{
         return el.split(",")
       })
       setCards(roundedCards)
+    
     }
   })
 

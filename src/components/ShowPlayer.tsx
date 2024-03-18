@@ -108,7 +108,12 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
 
     const Retry = <button onClick={retryConnectionHandler} data-text={"Retry Connection"}></button>
     const Fight = <button onClick={() => { PlaySoundMp3("click"); bootbattle() }}>Fight</button>
-    const Send = <button onClick={() => { PlaySoundMp3("click"); if (conn) conn.send({ cardsTransfered: cards }) }} data-text={"Send Challenge"}></button>
+    const Send = <button onClick={(e) => { 
+        PlaySoundMp3("click"); 
+        if (conn) conn.send({ cardsTransfered: cards }); 
+        let button = e.target as HTMLButtonElement
+        button!.classList.add("loading-button") 
+    }} data-text={"Send Challenge"}></button>
 
     return <section className="show-player" onTouchStart={drag}>
         <button className="return-button" onClick={() => { PlaySoundMp3("click"); handleBack() }}><FontAwesomeIcon icon={faArrowLeft} /></button>

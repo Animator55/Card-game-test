@@ -72,7 +72,12 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
       }}>
         <FontAwesomeIcon icon={faLayerGroup}/>
       </button>}
-    <div className="hand player" data-length={`${jsx.length}`} style={{gridTemplateColumns: `repeat(${jsx.length}, ${100/jsx.length}%)`}}>
+    <div 
+      className='hand player'
+      data-length={`${jsx.length}`} 
+      style={{
+        gridTemplateColumns: `repeat(${jsx.length}, ${100/jsx.length}%)`
+      }}>
       {jsx}
     </div>
   </React.Fragment>

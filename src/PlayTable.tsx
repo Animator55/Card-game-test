@@ -110,9 +110,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         function closeConn() {conn = undefined}
 
         if (duel !== undefined) {
-            console.log(peer, conn)
-
-            console.log('Connecting to ' + duel)
             if (!peer.connect) return
             conn = peer.connect(duel)
             conn.on('close', closeConn)
@@ -127,23 +124,19 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         peer.on('error', function (err) {
             switch (err.type) {
                 case 'unavailable-id':
-                    console.log(id + ' is taken')
                     peer?.reconnect()
                     break
                 case 'peer-unavailable':
-                    console.log('user offline')
                     break
                 default:
                     conn = undefined
                     if(peer) peer.disconnect()
                     peer = undefined
-                    console.log('an error happened')
             }
             return false;
         })
-        peer.on('open', function (id: string) {
+        peer.on('open', function () {
             if (peer === undefined || peer.id === undefined) return
-            console.log('Hi player ' + id)
         })
         if (conn !== undefined) return
 
@@ -223,7 +216,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     /// IA INTERACTIONS
 
     const IArespond = () => {
-        console.log("defense")
         setSubRound({ index: subRound.index, player: users.enemy._id })
         setTimeout(() => { // defense bot
             if (cardsOpponent.length === 0) return
@@ -234,7 +226,6 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     }
 
     const IAsend = () => {
-        console.log("attack")
         setTimeout(() => {
             let newCard = pickFromDeck(cardsOpponent, cardsOpponent[round])
             let pickCard = Math.random() > 0.6 && cardsOpponent[round].filter((el) => { return el !== "" }).length < 5 && newCard !== undefined
@@ -419,12 +410,12 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             <div className="pop-back">
                 <div className="connecting-pop"> 
                     <h2>Connecting to Server...</h2>
-                    <button onClick={()=>{if(peer) peer.reconnect()}}>Reconnect</button>
                 </div>
             </div>}
-            {peer !== undefined && conn === undefined && <div className="connecting-pop"> 
-                <h2>Connecting to Peer...</h2>
-                <button onClick={()=>{connectToPeer(usersDef.enemy)}}>Reconnect</button>
+            {peer !== undefined && conn === undefined && <div className="pop-back">
+                <div className="connecting-pop"> 
+                    <h2>Connecting to Peer...</h2>
+                </div>
             </div>}
             <PlayerLife />
         </>}
