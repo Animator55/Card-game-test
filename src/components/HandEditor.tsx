@@ -1,8 +1,10 @@
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faDice } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { cardsD } from "../assets/cardsList"
 import { Card } from "./Card"
+import PlaySoundMp3 from "../logic/playSound"
+import { generateHand } from "../logic/generateHand"
 
 type Props = {
     backToMenu: Function
@@ -28,7 +30,9 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
                             if (el === selected._id) return card._id + "." + Math.floor(Math.random() * 100000)
                             else return el
                         })
-                        setCards(Object.values({ ...cards, [selected.round]: newRound }) as string[][])
+                        let newCards = Object.values({ ...cards, [selected.round]: newRound }) as string[][]
+                        setCards(newCards)
+                        PlaySoundMp3("click")
                         setSelected(undefined)
                     }}
                     style={{}}
@@ -84,7 +88,10 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
 
     return <section className="hand-editor" onTouchStart={drag}>
         {!selected ? <>
-            <button className="return-button" onClick={() => { setCardsDef(cards); backToMenu() }}><FontAwesomeIcon icon={faArrowLeft} /></button>
+            <div className="d-flex">
+                <button className="return-button" onClick={() => { PlaySoundMp3("click");setCardsDef(cards); backToMenu() }}><FontAwesomeIcon icon={faArrowLeft} /></button>
+                <button className="config-button" onClick={() => { PlaySoundMp3("dice");setCards(generateHand()) }}><FontAwesomeIcon icon={faDice} /></button>
+            </div>
             <div>
                 {cards.map((round, i) => {
                     return <React.Fragment key={Math.random()}>
@@ -96,7 +103,7 @@ export default function HandEditor({ backToMenu, cardsDef, setCardsDef }: Props)
                                     card={card_id}
                                     key={Math.random()}
                                     className={"card editable"}
-                                    clickCard={() => { setSelected({ round: i, _id: card }) }}
+                                    clickCard={() => { PlaySoundMp3("click");setSelected({ round: i, _id: card }) }}
                                     style={{}}
                                 />
                             })}

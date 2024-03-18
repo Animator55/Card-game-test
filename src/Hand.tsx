@@ -3,6 +3,7 @@ import { userType } from './vite-env'
 import { Card } from './components/Card'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons'
+import PlaySoundMp3 from './logic/playSound'
 
 type Props = {
   users:{player: userType, enemy: userType}
@@ -46,7 +47,7 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
     let card = currentCards[i].split(".")[0]
 
     let style = { pointerEvents: subRound.player === users.player._id ? "all" : "none", zIndex: selectedLocal ? selectedIndex+1:"0"}
-    const click = () => { clickCard(currentCards[i]) }
+    const click = () => { PlaySoundMp3("click"); clickCard(currentCards[i]) }
   
     jsx.push(
       <Card
@@ -62,7 +63,7 @@ export default function Hand({ confirm, users, currentCards, subRound, fight, se
   let cardsAv = currentCards.filter((el) => { return el !== "" })
 
   return <React.Fragment>
-    {selected.length !== 0 && <button className="fixed-b-2" onClick={() => { confirm(selected); setSelected([]) }}></button>}
+    {selected.length !== 0 && <button className="fixed-b-2" onClick={() => { PlaySoundMp3("click"); confirm(selected); setSelected([]) }}></button>}
     {(cardsAv.length < 5 && (subRound.player === users.player._id && !fight[1])
       || (fight[1] && !fight[0] && cardsAv.length === 0))
       && <button className="deck" onClick={() => {

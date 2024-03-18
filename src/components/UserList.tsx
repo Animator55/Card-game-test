@@ -2,6 +2,7 @@ import { faArrowLeft, faMagnifyingGlass, faTrash } from "@fortawesome/free-solid
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { FormEvent } from "react"
 import { colorGenerator, iconSelector } from "../logic/iconSelector"
+import PlaySoundMp3 from "../logic/playSound"
 
 type Props = {
   slideFromRight: boolean,
@@ -21,6 +22,7 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
     if (input.value === "") return
     justAdded = "user-li" + input.value + cachedUsers.length
     setCachedUsers([...cachedUsers, input.value])
+    PlaySoundMp3("click");
     input.value = ""
     input.blur()
   }
@@ -106,6 +108,7 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
         }, 300)
       }
       else if(parseInt(button.style.left) > -10) {
+        PlaySoundMp3("click");
         handleSelectUser(button.name)
       }
       else {
@@ -145,6 +148,7 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
         }, 300)
       }
       else if(parseInt(button.style.left) > -10) {
+        PlaySoundMp3("click");
         handleSelectUser(button.name)
       }
       else {
@@ -173,7 +177,7 @@ export const UserList = ({ cachedUsers, setCachedUsers, backToMenu, selectUser, 
 
   return <section className="user-list" onTouchStart={drag}>
     <div className="top">
-      <button className="return-button" onClick={() => { backToMenu(false) }}><FontAwesomeIcon icon={faArrowLeft} /></button>
+      <button className="return-button" onClick={() => { PlaySoundMp3("click"); backToMenu(false) }}><FontAwesomeIcon icon={faArrowLeft} /></button>
       <form className="search" onSubmit={submit}>
         <input placeholder="Search user..." />
         <button type="submit"><FontAwesomeIcon icon={faMagnifyingGlass} /></button>

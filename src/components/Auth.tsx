@@ -1,4 +1,5 @@
 import React from "react"
+import PlaySoundMp3 from "../logic/playSound"
 
 type Props = {
   confirm: Function
@@ -20,6 +21,7 @@ export default function Auth({ confirm, loginState }: Props) {
     input.blur()
 
     setError("")
+    PlaySoundMp3("click")
     confirm(input.value)
   }
 
@@ -32,11 +34,25 @@ export default function Auth({ confirm, loginState }: Props) {
   React.useEffect(()=>{
     if(loginState !== "") {
       setError(loginState)
+      PlaySoundMp3("error")
       let auth = document.querySelector(".form")
       let button = auth?.lastChild as HTMLInputElement
       if(button)button.classList.remove('loading-button')    
     }
   }, [loginState])
+
+  React.useEffect(()=>{
+    let data = window.localStorage
+    if(data.length !== 0) {
+      let first = Object.keys(data)[0]
+      
+      let auth = document.querySelector(".form")
+      let input = auth?.firstChild as HTMLInputElement
+      input.value = first 
+      let button = input.nextElementSibling as HTMLButtonElement 
+      button.click() 
+    }
+  }, [])
 
 
   return <section className="auth-screen">

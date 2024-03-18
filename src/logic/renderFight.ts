@@ -1,5 +1,6 @@
 import { userType } from "../vite-env"
 import { eventType, resultType } from "./calculateFight"
+import PlaySoundMp3 from "./playSound"
 
 
 type attackResult = {
@@ -105,7 +106,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
         playerDOM.classList.add('get-hit')
         let bar = playerDOM.lastChild?.lastChild?.firstChild as HTMLElement
         if(!bar) return
-        playerLife = playerLife - attackResult.attackToLife.number
+        playerLife = playerLife - attackResult.attackToLife.number >= 0 ? playerLife - attackResult.attackToLife.number : 0
         bar.style.width = `${playerLife*5}%`
       }
       // to enemy
@@ -113,10 +114,31 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
         playerDOM.classList.add('get-hit-enemy')
         let bar = playerDOM.firstChild?.lastChild?.firstChild as HTMLElement
         if(!bar) return
-        enemyLife = enemyLife - attackResult.attackToLife.number
+        enemyLife = enemyLife - attackResult.attackToLife.number >= 0 ? enemyLife - attackResult.attackToLife.number : 0
         bar.style.width = `${enemyLife*5}%`
       }
+      PlaySoundMp3("attack")
       playerDOM.offsetWidth
+    }
+
+    const heal = (amount:number, owner: string)=>{
+      let playerDOM = document.querySelector("main")
+      if(!playerDOM) return
+      //to player
+      if(owner === player._id) {
+        let bar = playerDOM.lastChild?.lastChild?.firstChild as HTMLElement
+        if(!bar) return
+        playerLife = playerLife + amount <= 20 ? playerLife + amount : 20
+        bar.style.width = `${playerLife*5}%`
+      }
+      // to enemy
+      else {
+        let bar = playerDOM.firstChild?.lastChild?.firstChild as HTMLElement
+        if(!bar) return
+        enemyLife = enemyLife + amount <= 20 ? enemyLife + amount : 20
+        bar.style.width = `${enemyLife*5}%`
+      }
+      PlaySoundMp3("heal")
     }
 
     setTimeout(()=>{
@@ -134,6 +156,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
 
         // check if attack direct to player or enemy
         if(turn.action.attackTo && attackResult.attackToLife) attackLife(attackResult)
+        else if(turn.action.support) heal(turn.action.support, turn.owner)
         //check if the card is offensive
         else if(turn.action.attackTo && attackResult.damageTo) {
           let enemyTarget = document.getElementById(attackResult.damageTo._id)
@@ -161,6 +184,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
             
             if(toLife) return attackLife({attackToLife})
           }
+          PlaySoundMp3("attack")
           defenseEl.dataset.defense = `${Number(defenseEl.dataset.defense) - attackResult.damageTo.dealed}`
           enemyTarget.dataset.damage = ""
           enemyTarget.offsetWidth
@@ -187,6 +211,7 @@ export const renderFight = (calculated: resultType[], player:userType, enemy:use
             }
           }, 250)
         }
+        else if(turn.action.defense) PlaySoundMp3("defense")
       }, 300)
     }, time*turnVelocity)
   }

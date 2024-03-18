@@ -1,8 +1,9 @@
-import { faArrowLeft, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DataConnection } from "peerjs"
 import { colorGenerator, iconSelector } from "../logic/iconSelector"
 import React from "react"
+import PlaySoundMp3 from "../logic/playSound"
 
 type Props = {
     users: { player: string, enemy: string }
@@ -31,11 +32,6 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
             back()
         }, 300)
     }
-
-    const openSpan = () => {
-        console.log("a")
-    }
-
     const drag = (e: React.TouchEvent<HTMLDivElement>) => {
         let initialX = e.touches[0].pageX
         let list = document.querySelector(".show-player") as HTMLDivElement
@@ -75,6 +71,7 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
     }
 
     const retryConnectionHandler = (e: React.MouseEvent) => {
+        PlaySoundMp3("click");
         let button = e.currentTarget as HTMLButtonElement
         button.classList.add("loading-button")
         retryConn()
@@ -82,6 +79,7 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
 
     React.useEffect(() => {
         if (alert === "") return
+        PlaySoundMp3("error");
         let button = document.querySelector(".show-player")?.lastChild as HTMLButtonElement
         if (button) button.classList.remove("loading-button")
     }, [alert])
@@ -109,14 +107,11 @@ export const ShowPlayer = ({ users, conn, cards, cardsOpponent, back, retryConn,
             || conn?.peerConnection.connectionState === "new")
 
     const Retry = <button onClick={retryConnectionHandler} data-text={"Retry Connection"}></button>
-    const Fight = <button onClick={() => { bootbattle() }}>Fight</button>
-    const Send = <button onClick={() => { if (conn) conn.send({ cardsTransfered: cards }) }} data-text={"Send Challenge"}></button>
+    const Fight = <button onClick={() => { PlaySoundMp3("click"); bootbattle() }}>Fight</button>
+    const Send = <button onClick={() => { PlaySoundMp3("click"); if (conn) conn.send({ cardsTransfered: cards }) }} data-text={"Send Challenge"}></button>
 
     return <section className="show-player" onTouchStart={drag}>
-        <div className="d-flex">
-            <button className="return-button" onClick={() => { handleBack() }}><FontAwesomeIcon icon={faArrowLeft} /></button>
-            <button className="config-button" onClick={() => { openSpan() }}><FontAwesomeIcon icon={faEllipsisVertical} /></button>
-        </div>
+        <button className="return-button" onClick={() => { PlaySoundMp3("click"); handleBack() }}><FontAwesomeIcon icon={faArrowLeft} /></button>
         <div className="profile-show">
             <div className="icon" style={{backgroundColor: colorGenerator(selectedPlayer)}}>
                 <FontAwesomeIcon icon={iconSelector(selectedPlayer)} />

@@ -13,10 +13,11 @@ import { Card } from "./components/Card"
 import { colorGenerator, iconSelector } from "./logic/iconSelector"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Conclusion from "./components/Conclusion"
+import PlaySoundMp3 from "./logic/playSound"
 
 type dataTransfer = { action: string, cards: string[] | string[][], allCards?: string[][] }
 
-let turnVelocity = 500
+let turnVelocity = 1200
 let justAddedCardPlayer = ""
 let justAddedCardEnemy = ""
 let conn: DataConnection | undefined = undefined
@@ -63,6 +64,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             if (card === "") deleteAmount = 0
             else if (deleteAmount === 0 || card !== "") return card
         })
+        PlaySoundMp3("pick");
 
         if (!activateIA) setCardsOpponent(allCards as string[][])
         else setCardsOpponent(Object.values({ ...cardsOpponent, [round]: [...newCards, newCard] }) as Array<string[]>)
@@ -89,6 +91,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         })
 
         justAddedCardPlayer = newCard
+        PlaySoundMp3("pick");
 
         let cardsResult = Object.values({ ...cards, [round]: [...newCards, newCard] }) as Array<string[]>
         setCards(cardsResult)
@@ -125,7 +128,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             switch (err.type) {
                 case 'unavailable-id':
                     console.log(id + ' is taken')
-                    peer = undefined
+                    peer?.reconnect()
                     break
                 case 'peer-unavailable':
                     console.log('user offline')
@@ -173,6 +176,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     const sendSelected = () => {
         if (!peer || !conn) return
         conn.send({ action: "attack", cards: selected })
+        PlaySoundMp3("fold");
         setSubRound({ index: subRound.index, player: users.enemy._id })
     }
 
@@ -180,6 +184,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         if (!activateIA && (!peer || !conn)) return
 
         if (sendRespond && !activateIA && conn) conn.send({ action: "respond", cards: selected })
+        PlaySoundMp3("fold");
         let CalculateFight = calculateFight(selected, selectedEnemy, subRound.player === users.player._id ? users.enemy._id : users.player._id, [users.player._id, users.enemy._id])
         let time = renderFight(CalculateFight, users.player, users.enemy, turnVelocity)
         fadeOutTable(time, turnVelocity, subRound.player === users.player._id)
@@ -223,6 +228,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
         setTimeout(() => { // defense bot
             if (cardsOpponent.length === 0) return
             activateFight([true, true])
+            PlaySoundMp3("fold");
             setSelEnemy(generateRandomEnemyCards(selectedEnemy, cardsOpponent[round], cardsOpponent))
         }, 2000)
     }
@@ -234,6 +240,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
             let pickCard = Math.random() > 0.6 && cardsOpponent[round].filter((el) => { return el !== "" }).length < 5 && newCard !== undefined
             if (pickCard) return enemyPicksCard(newCard)
             activateFight([false, true])
+            PlaySoundMp3("fold");
             setSelEnemy(generateRandomEnemyCards(selectedEnemy, cardsOpponent[round], cardsOpponent))
             setSubRound({ index: subRound.index, player: users.player._id })
         }, 1000)
@@ -368,7 +375,9 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     }, [fight])
 
     React.useEffect(()=>{
-        if(round === 3) setConclusion(users.player.life > users.enemy.life ? users.player._id : users.enemy._id)
+        if(round === 3) {
+            setConclusion(users.player.life > users.enemy.life ? users.player._id : users.enemy._id)
+        }
     }, [round])
 
     let dataTurn = "2"
@@ -391,7 +400,7 @@ export default function PlayTable({ activateIA, cardsDefault, cardsOpponentDefau
     let checkConnections = !activateIA && peer === undefined
 
     return <main data-turn={dataTurn}>
-        {conclusion !== "" ? <Conclusion result={conclusion} sendToMenu={()=>{}}/> 
+        {conclusion !== "" ? <Conclusion result={conclusion === users.player._id ? "Win" : "Lose"}/> 
         : <>
             <EnemyLife />
             <RenderEnemyCards />

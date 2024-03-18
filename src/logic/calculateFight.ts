@@ -13,7 +13,7 @@ export type resultType = {
     action: {
         attackTo?: eventType[] //enemyCard or enemy
         defense?: number
-        support?: {type: string, number: number}  
+        support?: number
     }
 }
 export const calculateFight = (selected: string[], selectedEnemy: string[], turn: string, players: string[])=>{
@@ -88,7 +88,7 @@ export const calculateFight = (selected: string[], selectedEnemy: string[], turn
             action = {...action, defense: cardsOrder[i].card.defense}
         }
         if(cardsOrder[i].card.type === "Support") {
-            action = {...action, support: {type: "", number: 0}}
+            action = {...action, support: cardsOrder[i].card.strength}
         }
 
         let event = {

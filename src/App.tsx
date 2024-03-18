@@ -5,11 +5,11 @@ import PlayTable from "./PlayTable"
 import Menu from "./components/Menu"
 import Auth from "./components/Auth"
 import HandEditor from "./components/HandEditor"
-import { cardsD } from "./assets/cardsList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {  faCircleNotch } from "@fortawesome/free-solid-svg-icons"
 import { UserList } from "./components/UserList"
 import { ShowPlayer } from "./components/ShowPlayer"
+import { generateHand } from "./logic/generateHand"
 
 type dataTransferMenu = { action: string, cardsTransfered?: string[][] }
 
@@ -35,30 +35,18 @@ let cardsP1 = generatedTalesCards([
   ["0002", "0000", "0001", "0003", "0002"],
 ])
 
-const generateHand = ()=>{
-  let hand = []
-
-  let cards = Object.keys(cardsD)
-  for(let i=0; i<3; i++) {
-    let round = []
-    for(let j=0; j<5; j++) {
-      round.push(cards[Math.floor(Math.random() * cards.length)]+ "." + Math.floor(Math.random() * 100000))
-    }
-    hand.push(round)
-  }
-  return hand
-}
-
 const defaultUsers: string[] = []
 
 let justLogged = false
 let slideFromRight = true
 
+let defaultCards = window.localStorage.length !== 0 ? [] : cardsP1
+
 export default function App() {
   const [alert, activateAlert] = React.useState("")
   const [activateIA, setIA] = React.useState(false)
   const [menu, bootbattle] = React.useState(true)
-  const [cards, setCards] = React.useState<string[][]>(cardsP1)
+  const [cards, setCards] = React.useState<string[][]>(defaultCards)
   const [cardsOpponent, setCardsOpponent] = React.useState<string[][]>([])
   const [selectedPlayer, setPlayer] = React.useState<string | undefined>()
   const [page, setPage] = React.useState("login")
@@ -87,7 +75,8 @@ export default function App() {
   const startMultiplayerBattle = () => {
     if (!peer || !conn) return
     conn.send({ action: "fight", cardsTransfered: cards})
-    peer = undefined
+    setIA(false)
+    // peer = undefined
     let loading = document.querySelector(".loading-screen")
     loading?.classList.remove("d-none")
     setTimeout(()=>{
@@ -155,7 +144,7 @@ export default function App() {
 
         if (Data.action === "fight") {
           setCardsOpponent(Data.cardsTransfered!)
-          peer = undefined // try later to remove this
+          // peer = undefined // try later to remove this
           let loading = document.querySelector(".loading-screen")
           loading?.classList.remove("d-none")
           setTimeout(()=>{
@@ -190,6 +179,7 @@ export default function App() {
     setTimeout(() => {
       justLogged = false
       setPage("menu")
+      bootbattle(true)
     }, 300);
   }
 
@@ -219,13 +209,17 @@ export default function App() {
         <UserList 
           slideFromRight={slideFromRight}
           cachedUsers={cachedUsers}
-          setCachedUsers={setCachedUsers}
+          setCachedUsers={(value: string[])=>{if(value.length === 0 || value[value.length-1] !== users.player) setCachedUsers(value)}}
           backToMenu={(slide:boolean)=>{backToMenu(".user-list", slide)}}
           selectUser={(user:string)=>{setPlayer(user); connectToPeer(user+ "-login")}}
         />
       }
     </>,
-    "handEdit": <HandEditor backToMenu={(slide:boolean)=>{backToMenu(".hand-editor", slide)}} cardsDef={cards} setCardsDef={setCards}/>,
+    "handEdit": <HandEditor 
+      backToMenu={(slide:boolean)=>{backToMenu(".hand-editor", slide)}} 
+      cardsDef={cards} 
+      setCardsDef={setCards}
+    />,
   }
 
   /// EFFECTS
@@ -249,8 +243,20 @@ export default function App() {
         setPage("menu")
         justLogged = true
       },300)
+
+      if(defaultCards.length !== 0) window.localStorage.setItem(users.player, cards.join("/"))
+      let gettedCards = window.localStorage.getItem(users.player)!.split("/")
+      let roundedCards = gettedCards.map(el=>{
+        return el.split(",")
+      })
+      setCards(roundedCards)
     }
   })
+
+  React.useEffect(()=>{
+    if(cards.length === 0) return
+    window.localStorage.setItem(users.player, cards.join("/"))
+  }, [cards])
 
   return <>
     <div className="loading-screen d-none">

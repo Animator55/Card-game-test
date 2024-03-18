@@ -1,8 +1,11 @@
-type Props = {result: string, sendToMenu: Function}
+type Props = {result: string}
 
-export default function Conclusion({result, sendToMenu}: Props) {
+export default function Conclusion({result}: Props) {
   return <section className='conclusion-screen'>
-    <h2>You {result}</h2>
-    <button className='go-to-menu' onClick={()=>{sendToMenu()}}>Return to Menu</button>
+    <h2 className="title fade-in">You {result}</h2>
+    <button 
+      className='go-to-menu fade-in' 
+      style={{animationDelay: "500ms"}}
+      onClick={()=>{location.reload()}}></button>
   </section>
 }
