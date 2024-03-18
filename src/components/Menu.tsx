@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { colorGenerator, iconSelector } from "../logic/iconSelector"
 import PlaySoundMp3 from "../logic/playSound"
+import { faExpand } from "@fortawesome/free-solid-svg-icons"
 
 type Props = { setPage: Function, singlePlayer: Function, justLogged: boolean, user: string }
 
@@ -33,6 +34,7 @@ export default function Menu({ setPage, singlePlayer, justLogged, user }: Props)
         <FontAwesomeIcon icon={iconSelector(user)} />
       </div>
       <p>{user}</p>
+      <button className="fullscreen" onClick={()=>{document.body.requestFullscreen()}}><FontAwesomeIcon icon={faExpand} size="xl"/></button>
     </div>
   </section>
 }

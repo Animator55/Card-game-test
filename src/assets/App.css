@@ -7,6 +7,9 @@
 
 body {
   margin: 0;
+}
+
+#root {
   background-color: rgb(17, 0, 27);
 }
 
@@ -666,6 +669,13 @@ main[data-turn="1"] .table::after, main[data-turn="0"] .table::before {
   padding: .7rem 0.9rem;
   margin: 0.7rem auto .5rem 0.5rem;
   margin-right: auto;
+}
+
+.fullscreen {
+  margin-left: auto;
+  background-color: transparent;
+  font-size: 1.3rem;
+  color: white;
 }
 
 /***/

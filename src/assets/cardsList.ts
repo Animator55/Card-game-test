@@ -37,7 +37,7 @@ export const cardsD: cardsList = {
         name: "Fire Ball",
         image: "#ff0000",
         type: "Attack",
-        strength: 4,
+        strength: 5,
         speed: 2,
         defense: 0
     },
@@ -64,7 +64,7 @@ export const cardsD: cardsList = {
         name: "Water Ball",
         image: "#ff0000",
         type: "Attack",
-        strength: 2,
+        strength: 3,
         speed: 5,
         defense: 0
     },
