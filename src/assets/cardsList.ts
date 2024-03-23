@@ -47,7 +47,7 @@ export const cardsD: cardsList = {
         image: "#aee5ff",
         type: "Defense",
         strength: 0,
-        speed: 4,
+        speed: 5,
         defense: 2
     },
     "0004": {
@@ -75,7 +75,7 @@ export const cardsD: cardsList = {
         type: "Defense",
         strength: 0,
         speed: 3,
-        defense: 6
+        defense: 7
     },
     "0007": {
         _id: "0007",
